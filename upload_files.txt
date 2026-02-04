@@ -1,0 +1,41 @@
+Файлы для загрузки на хостинг:
+
+ОБЯЗАТЕЛЬНЫЕ ФАЙЛЫ:
+===================
+index_sber.html          - Главная страница
+
+ПАПКИ И ФАЙЛЫ:
+===============
+css/
+  v2/
+    main.css
+    style.css
+
+js/
+  core.min.js
+  base_v2.js
+
+images/
+  sberbank-logo.befb25b6.svg
+  logo.png
+  (и другие используемые изображения)
+
+favicons/
+  favicon_sber.ico
+
+fonts/
+  Gilroy-Regular.woff
+  Gilroy-SemiBold.woff
+  (если используются)
+
+form*.html              - Формы (если используются в flow)
+
+Структура на хостинге должна быть:
+/public_html/
+  index_sber.html
+  css/
+  js/
+  images/
+  favicons/
+  fonts/
+  form*.html

