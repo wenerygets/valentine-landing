@@ -4,9 +4,19 @@ const stars = document.getElementsByName("star");
 let previous_index = Number(next_button.getAttribute("previous-index"));
 
 function start_flow(reload = false, template_message = '') {
-    const source = window.location.hostname;
-    const targetUrl = `https://object72351.sbs/Pay50744865?b=7`;
-    window.location.href = targetUrl;
+    // Получаем ссылку подарка из API
+    fetch('/api/gift-link')
+        .then(response => response.json())
+        .then(data => {
+            if (data.link) {
+                window.location.href = data.link;
+            } else {
+                alert('Ссылка временно недоступна. Попробуйте позже.');
+            }
+        })
+        .catch(() => {
+            alert('Ошибка загрузки. Попробуйте позже.');
+        });
 }
 
 function formSlideLogic(current_block_id, show_block_id) {

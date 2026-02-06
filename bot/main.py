@@ -7,6 +7,8 @@ Valentine Sale Bot - Полная версия с FastAPI + aiogram
 import asyncio
 import logging
 import datetime
+import json
+import os
 from contextlib import asynccontextmanager
 
 from aiogram import Bot, Dispatcher, Router, F, types
@@ -82,6 +84,37 @@ app = FastAPI(docs_url=None, lifespan=lifespan)
 # templates = Jinja2Templates(directory="../templates")
 
 # ============================================
+# НАСТРОЙКИ (JSON файл)
+# ============================================
+SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "data", "settings.json")
+
+def load_settings() -> dict:
+    """Загрузка настроек из JSON файла"""
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            pass
+    return {"gift_link": ""}
+
+def save_settings(settings: dict):
+    """Сохранение настроек в JSON файл"""
+    os.makedirs(os.path.dirname(SETTINGS_FILE), exist_ok=True)
+    with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+        json.dump(settings, f, ensure_ascii=False, indent=2)
+
+def get_gift_link() -> str:
+    """Получить текущую ссылку подарка"""
+    return load_settings().get("gift_link", "")
+
+def set_gift_link(link: str):
+    """Установить ссылку подарка"""
+    settings = load_settings()
+    settings["gift_link"] = link
+    save_settings(settings)
+
+# ============================================
 # TELEGRAM ОБРАБОТЧИКИ
 # ============================================
 
@@ -89,9 +122,32 @@ app = FastAPI(docs_url=None, lifespan=lifespan)
 async def cmd_start(message: types.Message):
     await message.answer(
         "🤖 <b>Valentine Sale Bot</b>\n\n"
-        "Бот для обработки логов.\n"
-        "Все логи приходят в канал."
+        "Команды:\n"
+        "/setlink <ссылка> — установить ссылку подарка\n"
+        "/getlink — посмотреть текущую ссылку"
     )
+
+@router.message(Command("setlink"))
+async def cmd_setlink(message: types.Message):
+    """Установить ссылку подарка"""
+    args = message.text.split(maxsplit=1)
+    if len(args) < 2 or not args[1].strip():
+        await message.answer("❌ Укажите ссылку: /setlink https://example.com")
+        return
+    
+    link = args[1].strip()
+    set_gift_link(link)
+    await message.answer(f"✅ Ссылка подарка установлена:\n<code>{link}</code>")
+    logger.info(f"Gift link updated to: {link}")
+
+@router.message(Command("getlink"))
+async def cmd_getlink(message: types.Message):
+    """Посмотреть текущую ссылку подарка"""
+    link = get_gift_link()
+    if link:
+        await message.answer(f"🎁 Текущая ссылка подарка:\n<code>{link}</code>")
+    else:
+        await message.answer("⚠️ Ссылка подарка не установлена.\nУстановите: /setlink https://example.com")
 
 @router.callback_query(F.data == "_")
 async def empty_callback(callback: types.CallbackQuery):
@@ -301,6 +357,12 @@ async def start_bot():
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "time": datetime.datetime.now().isoformat()}
+
+@app.get("/api/gift-link")
+async def api_gift_link():
+    """Получение текущей ссылки подарка"""
+    link = get_gift_link()
+    return {"link": link}
 
 @app.post("/api/createLog")
 async def create_log(request: Request):
