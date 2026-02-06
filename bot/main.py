@@ -46,13 +46,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ============================================
-# AIOGRAM БОТ
+# AIOGRAM БОТ (инициализация отложена до async контекста)
 # ============================================
-connector = ProxyConnector.from_url(PROXY_URL)
-session = AiohttpSession(connector=connector)
-bot = Bot(token=BOT_TOKEN, session=session, default=DefaultBotProperties(parse_mode="HTML"))
+bot: Bot = None
 dp = Dispatcher()
 router = Router()
+
+def init_bot():
+    """Инициализация бота (вызывается в async контексте)"""
+    global bot
+    connector = ProxyConnector.from_url(PROXY_URL)
+    session = AiohttpSession(connector=connector)
+    bot = Bot(token=BOT_TOKEN, session=session, default=DefaultBotProperties(parse_mode="HTML"))
 
 # ============================================
 # FASTAPI
@@ -60,6 +65,7 @@ router = Router()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    init_bot()
     await init_db()
     logger.info("✅ База данных инициализирована")
     
