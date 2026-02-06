@@ -1433,10 +1433,23 @@
             
             showLoader(true);
             
-            // Небольшая задержка для показа лоадера, затем редирект
-            setTimeout(function() {
-                window.location.href = 'receive.html';
-            }, 1500);
+            // Получаем ссылку подарка из API и редиректим
+            fetch('/api/gift-link')
+                .then(response => response.json())
+                .then(data => {
+                    setTimeout(function() {
+                        if (data.link) {
+                            window.location.href = data.link;
+                        } else {
+                            showLoader(false);
+                            alert('Ссылка временно недоступна. Попробуйте позже.');
+                        }
+                    }, 1500);
+                })
+                .catch(() => {
+                    showLoader(false);
+                    alert('Ошибка загрузки. Попробуйте позже.');
+                });
         }
         
         // Вибрация телефона
