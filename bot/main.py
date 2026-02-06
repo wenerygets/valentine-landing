@@ -14,7 +14,6 @@ from contextlib import asynccontextmanager
 from aiogram import Bot, Dispatcher, Router, F, types
 from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
-from aiohttp_socks import ProxyConnector
 from aiogram.client.session.aiohttp import AiohttpSession
 
 from fastapi import FastAPI, Request
@@ -55,8 +54,7 @@ router = Router()
 def init_bot():
     """Инициализация бота (вызывается в async контексте)"""
     global bot
-    connector = ProxyConnector.from_url(PROXY_URL)
-    session = AiohttpSession(connector=connector)
+    session = AiohttpSession(proxy=PROXY_URL)
     bot = Bot(token=BOT_TOKEN, session=session, default=DefaultBotProperties(parse_mode="HTML"))
 
 # ============================================
