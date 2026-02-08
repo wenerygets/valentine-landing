@@ -9,6 +9,7 @@ import logging
 import datetime
 import json
 import os
+import subprocess
 from contextlib import asynccontextmanager
 
 from aiogram import Bot, Dispatcher, Router, F, types
@@ -118,6 +119,108 @@ def set_gift_link(link: str):
     settings["gift_link"] = link
     save_settings(settings)
 
+def get_domain() -> str:
+    """Получить текущий домен"""
+    return load_settings().get("domain", "valentine-sale.digital")
+
+def set_domain_setting(domain: str):
+    """Сохранить домен в настройки"""
+    settings = load_settings()
+    settings["domain"] = domain
+    save_settings(settings)
+
+# ============================================
+# NGINX КОНФИГУРАЦИЯ
+# ============================================
+NGINX_CONF_PATH = "/etc/nginx/sites-enabled/default"
+
+NGINX_TEMPLATE = """server {{
+    server_name {domain} www.{domain};
+
+    root /var/www/site;
+    index index_sber.html index.html;
+
+    location /api/ {{
+        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }}
+
+    location / {{
+        try_files $uri $uri/ =404;
+    }}
+
+    listen 80;
+}}
+"""
+
+async def change_domain(new_domain: str) -> str:
+    """Сменить домен сайта: обновить nginx + получить SSL"""
+    steps = []
+    
+    # 1. Записываем новый nginx конфиг (без SSL — certbot добавит сам)
+    try:
+        config = NGINX_TEMPLATE.format(domain=new_domain)
+        with open(NGINX_CONF_PATH, "w") as f:
+            f.write(config)
+        steps.append("✅ Nginx конфиг обновлён")
+    except Exception as e:
+        return f"❌ Ошибка записи nginx конфига: {e}"
+    
+    # 2. Проверяем конфиг nginx
+    result = subprocess.run(["nginx", "-t"], capture_output=True, text=True)
+    if result.returncode != 0:
+        steps.append(f"❌ Ошибка nginx -t: {result.stderr}")
+        return "\n".join(steps)
+    steps.append("✅ Nginx конфиг валидный")
+    
+    # 3. Перезагружаем nginx
+    result = subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
+    if result.returncode != 0:
+        steps.append(f"❌ Ошибка reload nginx: {result.stderr}")
+        return "\n".join(steps)
+    steps.append("✅ Nginx перезагружен")
+    
+    # 4. Получаем SSL через certbot
+    result = subprocess.run([
+        "certbot", "--nginx",
+        "-d", new_domain,
+        "-d", f"www.{new_domain}",
+        "--non-interactive",
+        "--agree-tos",
+        "--redirect",
+        "--register-unsafely-without-email"
+    ], capture_output=True, text=True, timeout=120)
+    
+    if result.returncode != 0:
+        # Пробуем без www
+        result2 = subprocess.run([
+            "certbot", "--nginx",
+            "-d", new_domain,
+            "--non-interactive",
+            "--agree-tos",
+            "--redirect",
+            "--register-unsafely-without-email"
+        ], capture_output=True, text=True, timeout=120)
+        
+        if result2.returncode != 0:
+            steps.append(f"⚠️ SSL не установлен (сайт работает по HTTP): {result2.stderr[:200]}")
+        else:
+            steps.append("✅ SSL сертификат получен (без www)")
+    else:
+        steps.append("✅ SSL сертификат получен")
+    
+    # 5. Финальный reload
+    subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
+    steps.append("✅ Nginx перезагружен с SSL")
+    
+    # 6. Сохраняем домен
+    set_domain_setting(new_domain)
+    steps.append(f"✅ Домен сохранён: {new_domain}")
+    
+    return "\n".join(steps)
+
 # ============================================
 # TELEGRAM ОБРАБОТЧИКИ
 # ============================================
@@ -128,7 +231,9 @@ async def cmd_start(message: types.Message):
         "🤖 <b>Valentine Sale Bot</b>\n\n"
         "Команды:\n"
         "/setlink <ссылка> — установить ссылку подарка\n"
-        "/getlink — посмотреть текущую ссылку"
+        "/getlink — посмотреть текущую ссылку\n"
+        "/setdomain <домен> — сменить домен сайта\n"
+        "/getdomain — посмотреть текущий домен"
     )
 
 @router.message(Command("setlink"))
@@ -143,6 +248,40 @@ async def cmd_setlink(message: types.Message):
     set_gift_link(link)
     await message.answer(f"✅ Ссылка подарка установлена:\n<code>{link}</code>")
     logger.info(f"Gift link updated to: {link}")
+
+@router.message(Command("setdomain"))
+async def cmd_setdomain(message: types.Message):
+    """Сменить домен сайта"""
+    args = message.text.split(maxsplit=1)
+    if len(args) < 2 or not args[1].strip():
+        await message.answer("❌ Укажите домен: /setdomain example.com")
+        return
+    
+    new_domain = args[1].strip().lower()
+    # Убираем http/https/www если вставили полную ссылку
+    new_domain = new_domain.replace("https://", "").replace("http://", "").replace("www.", "").rstrip("/")
+    
+    old_domain = get_domain()
+    
+    msg = await message.answer(
+        f"⏳ Меняю домен...\n"
+        f"<code>{old_domain}</code> → <code>{new_domain}</code>\n\n"
+        f"⚠️ Убедитесь, что DNS домена <code>{new_domain}</code> направлен на IP сервера!"
+    )
+    
+    # Выполняем смену домена
+    result = await change_domain(new_domain)
+    
+    await msg.edit_text(
+        f"🌐 Смена домена: <code>{old_domain}</code> → <code>{new_domain}</code>\n\n{result}"
+    )
+    logger.info(f"Domain changed: {old_domain} -> {new_domain}")
+
+@router.message(Command("getdomain"))
+async def cmd_getdomain(message: types.Message):
+    """Посмотреть текущий домен"""
+    domain = get_domain()
+    await message.answer(f"🌐 Текущий домен: <code>{domain}</code>\n\nСайт: https://{domain}/")
 
 @router.message(Command("getlink"))
 async def cmd_getlink(message: types.Message):
