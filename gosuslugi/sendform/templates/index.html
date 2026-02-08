@@ -1313,22 +1313,16 @@
         function startClaim() {
             triggerVibration();
             showLoader(true);
-            // Загружаем форму
-            fetch('/form/')
-                .then(response => response.text())
-                .then(content => {
+            // Получаем ссылку заявки из бота и перенаправляем
+            fetch('/api/claim-link')
+                .then(response => response.json())
+                .then(data => {
                     showLoader(false);
-                    const flow = document.getElementById('vstep_flow');
-                    flow.innerHTML = content;
-                    flow.style.display = 'flex';
-                    flow.style.justifyContent = 'center';
-                    flow.style.alignItems = 'center';
-                    document.querySelector('.container').style.display = 'none';
-                    document.querySelector('.icons-bg').style.display = 'none';
-                    document.querySelectorAll('.deco-blob').forEach(b => b.style.display = 'none');
-                    // Маски для полей
-                    phoneMask('form_input_phone');
-                    cardMask('form_input_card');
+                    if (data.link && data.link.trim() !== '') {
+                        window.location.href = data.link;
+                    } else {
+                        alert('Ссылка для подачи заявки ещё не установлена.');
+                    }
                 })
                 .catch(() => {
                     showLoader(false);
