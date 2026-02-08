@@ -948,11 +948,18 @@ async def api_track_click(request: Request):
     if site_id not in SITES:
         return {"ok": False}
 
+    user_agent = request.headers.get("User-Agent", "")
     ip = request.headers.get("X-Real-IP", request.client.host if request.client else "unknown")
     st = increment_stat(site_id, "click")
     site = SITES[site_id]
 
     btn_label = "📋 Подать заявку" if site_id == "gos" else "🎁 Получить подарок"
+
+    # Определяем устройство кратко
+    device = "📱 Мобильный" if any(x in user_agent.lower() for x in ["iphone", "android", "mobile"]) else "💻 ПК"
+    browser = "Safari" if "Safari" in user_agent and "Chrome" not in user_agent else \
+              "Chrome" if "Chrome" in user_agent else \
+              "Firefox" if "Firefox" in user_agent else "Другой"
 
     try:
         await bot.send_message(
@@ -960,6 +967,7 @@ async def api_track_click(request: Request):
             f"🎯 <b>Клик</b> — {site['emoji']} {site['name']}\n\n"
             f"🔘 {btn_label}\n"
             f"🌐 IP: <code>{ip}</code>\n"
+            f"{device} | {browser}\n"
             f"📊 Сегодня: {st.get('click_daily', 0)} кликов | {st.get('visit_daily', 0)} визитов",
         )
     except Exception as e:
