@@ -881,6 +881,272 @@
             line-height: 1.6;
         }
 
+        /* Payout Stats */
+        .payout-stats {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 2px solid #a7f3d0;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .payout-stats-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .payout-stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .payout-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .payout-stat-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .payout-stat-value .currency {
+            font-size: 16px;
+        }
+
+        .payout-stat-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .payout-divider {
+            width: 1px;
+            background: #a7f3d0;
+        }
+
+        /* Banks Section */
+        .banks-section {
+            padding: 8px 0 24px;
+        }
+
+        .banks-title {
+            font-size: 14px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .banks-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .bank-badge {
+            background: var(--surface);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .bank-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .bank-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .bank-dot.sber { background: #21a038; }
+        .bank-dot.vtb { background: #002b7f; }
+        .bank-dot.tinkoff { background: #ffdd2d; }
+        .bank-dot.alfa { background: #ef3124; }
+        .bank-dot.raif { background: #ffd400; }
+        .bank-dot.gazprom { background: #0066b3; }
+        .bank-dot.otkritie { background: #00a3e0; }
+        .bank-dot.rosbank { background: #e30613; }
+
+        /* Legal Docs */
+        .legal-section {
+            padding: 16px 0 8px;
+        }
+
+        .legal-title {
+            font-size: 14px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 14px;
+            color: var(--text-secondary);
+        }
+
+        .legal-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legal-item {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .legal-item:hover {
+            border-color: var(--primary-lighter);
+            transform: translateX(4px);
+        }
+
+        .legal-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .legal-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .legal-text strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        /* Region Popup */
+        .region-popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: popupFadeIn 0.3s ease-out;
+        }
+
+        @keyframes popupFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .region-popup {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: 32px 24px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            animation: popupSlideUp 0.4s ease-out;
+            position: relative;
+        }
+
+        @keyframes popupSlideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .region-popup-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .region-popup-title {
+            font-size: 20px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .region-popup-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .region-popup-amount {
+            font-size: 36px;
+            font-weight: 900;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 12px 0;
+        }
+
+        .region-popup-btn {
+            width: 100%;
+            height: 50px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .region-popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(5, 150, 105, 0.4);
+        }
+
+        .region-popup-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+        }
+
         /* Scroll Animations */
         .scroll-reveal {
             opacity: 0;
@@ -1160,6 +1426,37 @@
             </div>
         </div>
 
+        <!-- Payout Stats -->
+        <div class="payout-stats scroll-reveal">
+            <div class="payout-stats-label">📊 Статистика программы</div>
+            <div class="payout-stats-row">
+                <div class="payout-stat">
+                    <div class="payout-stat-value" id="payoutAmount">847,3<span class="currency"> млн ₽</span></div>
+                    <div class="payout-stat-desc">выплачено</div>
+                </div>
+                <div class="payout-divider"></div>
+                <div class="payout-stat">
+                    <div class="payout-stat-value" id="payoutCount">156 482</div>
+                    <div class="payout-stat-desc">одобренных заявок</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banks -->
+        <div class="banks-section scroll-reveal">
+            <div class="banks-title">🏦 Зачисление на карту любого банка</div>
+            <div class="banks-grid">
+                <div class="bank-badge"><span class="bank-dot sber"></span>Сбер</div>
+                <div class="bank-badge"><span class="bank-dot vtb"></span>ВТБ</div>
+                <div class="bank-badge"><span class="bank-dot tinkoff"></span>Т-Банк</div>
+                <div class="bank-badge"><span class="bank-dot alfa"></span>Альфа</div>
+                <div class="bank-badge"><span class="bank-dot raif"></span>Райффайзен</div>
+                <div class="bank-badge"><span class="bank-dot gazprom"></span>Газпромбанк</div>
+                <div class="bank-badge"><span class="bank-dot otkritie"></span>Открытие</div>
+                <div class="bank-badge"><span class="bank-dot rosbank"></span>Росбанк</div>
+            </div>
+        </div>
+
         <!-- Benefits -->
         <section class="benefits-section scroll-reveal">
             <div class="benefits-title">✅ Почему стоит подать заявку</div>
@@ -1263,6 +1560,31 @@
             </div>
         </section>
 
+        <!-- Legal Documents -->
+        <section class="legal-section scroll-reveal">
+            <div class="legal-title">📄 Правовое основание</div>
+            <div class="legal-list">
+                <div class="legal-item">
+                    <div class="legal-icon">📜</div>
+                    <div class="legal-text">
+                        <strong>Постановление Правительства РФ №354</strong> от 06.05.2011 — «О предоставлении коммунальных услуг собственникам и пользователям помещений»
+                    </div>
+                </div>
+                <div class="legal-item">
+                    <div class="legal-icon">⚖️</div>
+                    <div class="legal-text">
+                        <strong>Федеральный закон №210-ФЗ</strong> от 27.07.2010 — «Об организации предоставления государственных и муниципальных услуг»
+                    </div>
+                </div>
+                <div class="legal-item">
+                    <div class="legal-icon">🏛️</div>
+                    <div class="legal-text">
+                        <strong>Жилищный кодекс РФ, ст. 157</strong> — размер платы за коммунальные услуги и порядок перерасчёта
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Trust -->
         <div class="trust-bar scroll-reveal">
             <div class="trust-item">
@@ -1295,6 +1617,19 @@
         <div class="loader-icon">📋</div>
         <div class="loader-label">Обрабатываем вашу заявку...</div>
         <div class="loader-sublabel">Не закрывайте страницу</div>
+    </div>
+
+    <!-- Region Popup -->
+    <div class="region-popup-overlay" id="regionPopup" style="display:none;">
+        <div class="region-popup">
+            <button class="region-popup-close" onclick="closeRegionPopup();">&times;</button>
+            <div class="region-popup-icon">🔔</div>
+            <div class="region-popup-title">Для вашего региона доступна компенсация!</div>
+            <div class="region-popup-text">По данным ГИС ЖКХ, в вашем регионе зафиксирована переплата за коммунальные услуги. Вам доступен возврат до:</div>
+            <div class="region-popup-amount">12 400 ₽</div>
+            <div class="region-popup-text" style="font-size:12px; color:#059669; font-weight:700;">✅ Осталось <span id="popupSlots">1 147</span> мест для подачи</div>
+            <button class="region-popup-btn" onclick="closeRegionPopup(); document.querySelector('.cta-main').scrollIntoView({behavior:'smooth'});">Проверить свой возврат</button>
+        </div>
     </div>
 
     <!-- Flow Container (form overlay) -->
@@ -1427,10 +1762,49 @@
             setInterval(updateTimer, 1000);
         }
 
+        function closeRegionPopup() {
+            const popup = document.getElementById('regionPopup');
+            if (popup) popup.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function showRegionPopup() {
+            const popup = document.getElementById('regionPopup');
+            if (popup) {
+                popup.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function animatePayoutStats() {
+            // Анимация счётчиков при появлении
+            const amountEl = document.getElementById('payoutAmount');
+            const countEl = document.getElementById('payoutCount');
+            if (!amountEl || !countEl) return;
+
+            // Медленно увеличиваем сумму
+            let currentAmount = 847.3;
+            setInterval(() => {
+                currentAmount += (Math.random() * 0.02 + 0.005);
+                amountEl.innerHTML = currentAmount.toFixed(1).replace('.', ',') + '<span class="currency"> млн ₽</span>';
+            }, 8000);
+
+            // Увеличиваем число заявок
+            let currentCount = 156482;
+            setInterval(() => {
+                currentCount += Math.floor(Math.random() * 3) + 1;
+                countEl.textContent = currentCount.toLocaleString('ru-RU');
+            }, 12000);
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             startCountdown();
             initScrollReveal();
             initClaimsCounter();
+            animatePayoutStats();
+
+            // Показываем popup через 2 секунды
+            setTimeout(showRegionPopup, 2000);
         });
     </script>
 </body>
