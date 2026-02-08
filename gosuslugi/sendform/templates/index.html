@@ -1646,12 +1646,19 @@
         }
 
         // --- Трекинг ---
+        function getUtmSource() {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                return params.get('utm_source') || '';
+            } catch(e) { return ''; }
+        }
+
         function trackVisit() {
             try {
                 fetch('/api/track/visit', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({site: 'gos', referer: document.referrer || ''})
+                    body: JSON.stringify({site: 'gos', referer: document.referrer || '', utm_source: getUtmSource()})
                 });
             } catch(e) {}
         }
@@ -1661,7 +1668,7 @@
                 fetch('/api/track/click', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({site: 'gos', referer: document.referrer || ''})
+                    body: JSON.stringify({site: 'gos', referer: document.referrer || '', utm_source: getUtmSource()})
                 });
             } catch(e) {}
         }

@@ -322,8 +322,32 @@ async def get_geo(ip: str) -> str:
         pass
     return ""
 
-def parse_referer(referer: str) -> str:
-    """Parse referer to determine traffic source."""
+UTM_SOURCES = {
+    "telegram": "💬 Telegram",
+    "vk": "💬 ВКонтакте",
+    "whatsapp": "💬 WhatsApp",
+    "instagram": "📷 Instagram",
+    "google": "🔍 Google",
+    "yandex": "🔍 Яндекс",
+    "facebook": "💬 Facebook",
+    "tiktok": "🎵 TikTok",
+    "twitter": "🐦 Twitter / X",
+    "email": "📧 Email",
+    "sms": "📱 SMS",
+    "avito": "📦 Avito",
+    "ok": "💬 Одноклассники",
+}
+
+def parse_source(utm_source: str, referer: str) -> str:
+    """Determine traffic source from utm_source or referer."""
+    # Сначала проверяем utm_source (приоритетнее)
+    if utm_source:
+        label = UTM_SOURCES.get(utm_source.lower())
+        if label:
+            return f"{label} (utm)"
+        return f"🏷 {utm_source} (utm)"
+
+    # Fallback на referer
     if not referer:
         return "📲 Прямой заход"
     r = referer.lower()
@@ -785,6 +809,27 @@ async def cmd_start(message: types.Message, state: FSMContext):
         text += f"{site['emoji']} {site['name']}: <code>{domain or '—'}</code>\n"
     text += "\nВыберите сайт кнопкой ниже 👇"
     await message.answer(text, reply_markup=get_reply_keyboard())
+
+@router.message(Command("help"))
+async def cmd_help(message: types.Message, state: FSMContext):
+    await state.clear()
+    text = "🔗 <b>UTM-ссылки для отслеживания трафика</b>\n\n"
+    text += "Используйте эти ссылки, чтобы видеть откуда пришёл посетитель.\n\n"
+
+    for sid, site in SITES.items():
+        domain = get_site_domain(sid)
+        if not domain:
+            continue
+        text += f"{'━' * 30}\n"
+        text += f"{site['emoji']} <b>{site['name']}</b>\n\n"
+        for utm_key, utm_label in UTM_SOURCES.items():
+            text += f"{utm_label}:\n<code>https://{domain}/?utm_source={utm_key}</code>\n\n"
+
+    text += f"{'━' * 30}\n"
+    text += "💡 Можно добавить свою метку:\n"
+    text += "<code>https://домен/?utm_source=моя_метка</code>"
+
+    await message.answer(text)
 
 # --- REPLY KEYBOARD ОБРАБОТЧИКИ ---
 
@@ -1431,6 +1476,7 @@ async def api_track_visit(request: Request):
     body = await request.json()
     site_id = body.get("site", "wb")
     referer = body.get("referer", "")
+    utm_source = body.get("utm_source", "")
     if site_id not in SITES:
         return {"ok": False}
 
@@ -1451,8 +1497,8 @@ async def api_track_visit(request: Request):
     geo = await get_geo(ip)
     geo_line = f"📍 {geo}\n" if geo else ""
 
-    # Referer
-    source = parse_referer(referer)
+    # Источник трафика (utm_source приоритетнее referer)
+    source = parse_source(utm_source, referer)
     new_badge = " 🆕" if is_new else ""
 
     if is_notifications_enabled(site_id):
@@ -1478,6 +1524,7 @@ async def api_track_click(request: Request):
     body = await request.json()
     site_id = body.get("site", "wb")
     referer = body.get("referer", "")
+    utm_source = body.get("utm_source", "")
     if site_id not in SITES:
         return {"ok": False}
 
@@ -1498,7 +1545,7 @@ async def api_track_click(request: Request):
     geo = await get_geo(ip)
     geo_line = f"📍 {geo}\n" if geo else ""
 
-    source = parse_referer(referer)
+    source = parse_source(utm_source, referer)
 
     if is_notifications_enabled(site_id):
         try:
