@@ -374,6 +374,44 @@ NGINX_STATIC_TEMPLATE = """server {{
 }}
 """
 
+NGINX_STATIC_SSL_TEMPLATE = """server {{
+    server_name {domain} www.{domain};
+
+    root {root};
+    index {index} index.html;
+
+    location /api/ {{
+        proxy_pass http://127.0.0.1:{proxy_port}/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }}
+
+    location / {{
+        try_files $uri $uri/ =404;
+    }}
+
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/{domain}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{domain}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}}
+server {{
+    if ($host = www.{domain}) {{
+        return 301 https://$host$request_uri;
+    }}
+
+    if ($host = {domain}) {{
+        return 301 https://$host$request_uri;
+    }}
+
+    listen 80;
+    server_name {domain} www.{domain};
+    return 404;
+}}
+"""
+
 NGINX_DJANGO_TEMPLATE = """server {{
     server_name {domain} www.{domain};
 
@@ -398,6 +436,50 @@ NGINX_DJANGO_TEMPLATE = """server {{
     }}
 
     listen 80;
+}}
+"""
+
+NGINX_DJANGO_SSL_TEMPLATE = """server {{
+    server_name {domain} www.{domain};
+
+    location /static/ {{
+        alias {static_root}/;
+    }}
+
+    location /api/ {{
+        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }}
+
+    location / {{
+        proxy_pass http://127.0.0.1:{proxy_port};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }}
+
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/{domain}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{domain}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}}
+server {{
+    if ($host = www.{domain}) {{
+        return 301 https://$host$request_uri;
+    }}
+
+    if ($host = {domain}) {{
+        return 301 https://$host$request_uri;
+    }}
+
+    listen 80;
+    server_name {domain} www.{domain};
+    return 404;
 }}
 """
 
@@ -469,18 +551,33 @@ async def toggle_maintenance_mode(site_id: str, enable: bool) -> str:
     set_maintenance_enabled(site_id, enable)
 
     if not enable:
-        ssl_ok = await issue_ssl(domain)
-        if ssl_ok:
-            subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
-            return "✅ Сайт восстановлен и SSL обновлён"
-        return "✅ Сайт восстановлен (SSL не обновлён — обновите вручную)"
+        # Если SSL сертификаты уже есть, конфиг уже сгенерирован с ними
+        cert_path = f"/etc/letsencrypt/live/{domain}"
+        if os.path.exists(f"{cert_path}/fullchain.pem"):
+            return "✅ Сайт восстановлен (SSL на месте)"
+        else:
+            ssl_ok = await issue_ssl(domain)
+            if ssl_ok:
+                subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
+                return "✅ Сайт восстановлен и SSL установлен"
+            return "✅ Сайт восстановлен (без SSL — выпустите вручную)"
 
     return "✅ Тех. работы включены"
 
 def generate_nginx_config(site_id: str, domain: str) -> str:
-    """Генерация nginx конфига для сайта"""
+    """Генерация nginx конфига для сайта (с SSL если сертификаты уже есть)"""
     site = SITES[site_id]
+    cert_path = f"/etc/letsencrypt/live/{domain}"
+    has_ssl = os.path.exists(f"{cert_path}/fullchain.pem")
+
     if site["type"] == "static":
+        if has_ssl:
+            return NGINX_STATIC_SSL_TEMPLATE.format(
+                domain=domain,
+                root=site["root"],
+                index=site.get("index", "index.html"),
+                proxy_port=site["proxy_port"],
+            )
         return NGINX_STATIC_TEMPLATE.format(
             domain=domain,
             root=site["root"],
@@ -488,6 +585,12 @@ def generate_nginx_config(site_id: str, domain: str) -> str:
             proxy_port=site["proxy_port"],
         )
     elif site["type"] == "django":
+        if has_ssl:
+            return NGINX_DJANGO_SSL_TEMPLATE.format(
+                domain=domain,
+                static_root=site.get("static_root", site["root"] + "/staticfiles"),
+                proxy_port=site["proxy_port"],
+            )
         return NGINX_DJANGO_TEMPLATE.format(
             domain=domain,
             static_root=site.get("static_root", site["root"] + "/staticfiles"),
