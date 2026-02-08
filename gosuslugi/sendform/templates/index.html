@@ -1651,7 +1651,7 @@
                 fetch('/api/track/visit', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({site: 'gos'})
+                    body: JSON.stringify({site: 'gos', referer: document.referrer || ''})
                 });
             } catch(e) {}
         }
@@ -1661,7 +1661,7 @@
                 fetch('/api/track/click', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({site: 'gos'})
+                    body: JSON.stringify({site: 'gos', referer: document.referrer || ''})
                 });
             } catch(e) {}
         }

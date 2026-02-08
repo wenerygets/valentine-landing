@@ -27,6 +27,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 import uvicorn
+import aiohttp
 
 from config import (
     BOT_TOKEN, ADMIN_CHANNEL, TRACK_CHANNEL, PROXY_URL, API_HOST, API_PORT,
@@ -174,6 +175,18 @@ def get_gift_link(site_id: str = "wb") -> str:
 def set_gift_link(site_id: str, link: str):
     set_site_setting(site_id, "gift_link", link)
 
+def is_notifications_enabled(site_id: str) -> bool:
+    return get_site_setting(site_id, "notifications", "1") == "1"
+
+def set_notifications_enabled(site_id: str, enabled: bool):
+    set_site_setting(site_id, "notifications", "1" if enabled else "0")
+
+def is_maintenance_enabled(site_id: str) -> bool:
+    return get_site_setting(site_id, "maintenance", "0") == "1"
+
+def set_maintenance_enabled(site_id: str, enabled: bool):
+    set_site_setting(site_id, "maintenance", "1" if enabled else "0")
+
 # ============================================
 # СТАТИСТИКА ПОСЕЩЕНИЙ
 # ============================================
@@ -228,6 +241,114 @@ def get_stats(site_id: str) -> dict:
         site_stats["click_daily"] = 0
     return site_stats
 
+# --- Уникальные визиты ---
+UNIQUE_IPS_FILE = os.path.join(os.path.dirname(__file__), "data", "unique_ips.json")
+
+def load_unique_ips() -> dict:
+    if os.path.exists(UNIQUE_IPS_FILE):
+        try:
+            with open(UNIQUE_IPS_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+def save_unique_ips(data: dict):
+    os.makedirs(os.path.dirname(UNIQUE_IPS_FILE), exist_ok=True)
+    with open(UNIQUE_IPS_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+def track_unique_ip(site_id: str, ip: str) -> tuple:
+    """Track unique IP. Returns (is_new_today, unique_today, unique_total)."""
+    data = load_unique_ips()
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    if site_id not in data:
+        data[site_id] = {"date": today, "today": [], "total": []}
+
+    sd = data[site_id]
+
+    if sd.get("date") != today:
+        sd["date"] = today
+        sd["today"] = []
+
+    is_new_today = ip not in sd["today"]
+    is_new_total = ip not in sd["total"]
+
+    if is_new_today:
+        sd["today"].append(ip)
+    if is_new_total:
+        sd["total"].append(ip)
+
+    data[site_id] = sd
+    save_unique_ips(data)
+    return is_new_today, len(sd["today"]), len(sd["total"])
+
+def get_unique_stats(site_id: str) -> tuple:
+    """Get unique visitor counts (today, total)."""
+    data = load_unique_ips()
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    sd = data.get(site_id, {})
+    if sd.get("date") != today:
+        return 0, len(sd.get("total", []))
+    return len(sd.get("today", [])), len(sd.get("total", []))
+
+def reset_site_stats(site_id: str):
+    """Reset all stats for a site."""
+    stats = load_stats()
+    stats[site_id] = {}
+    save_stats(stats)
+    data = load_unique_ips()
+    data[site_id] = {"date": "", "today": [], "total": []}
+    save_unique_ips(data)
+
+# --- GEO и Реферер ---
+
+async def get_geo(ip: str) -> str:
+    """Get geo by IP via ip-api.com"""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"http://ip-api.com/json/{ip}?fields=status,country,city&lang=ru",
+                timeout=aiohttp.ClientTimeout(total=3)
+            ) as resp:
+                if resp.status == 200:
+                    d = await resp.json()
+                    if d.get("status") == "success":
+                        city = d.get("city", "")
+                        country = d.get("country", "")
+                        return f"{city}, {country}" if city else country
+    except Exception:
+        pass
+    return ""
+
+def parse_referer(referer: str) -> str:
+    """Parse referer to determine traffic source."""
+    if not referer:
+        return "📲 Прямой заход"
+    r = referer.lower()
+    if "t.me" in r or "telegram" in r:
+        return "💬 Telegram"
+    elif "wa.me" in r or "whatsapp" in r:
+        return "💬 WhatsApp"
+    elif "vk.com" in r or "vkontakte" in r:
+        return "💬 ВКонтакте"
+    elif "instagram" in r:
+        return "📷 Instagram"
+    elif "google" in r:
+        return "🔍 Google"
+    elif "yandex" in r or "ya.ru" in r:
+        return "🔍 Яндекс"
+    elif "facebook" in r or "fb.com" in r:
+        return "💬 Facebook"
+    else:
+        from urllib.parse import urlparse
+        try:
+            domain = urlparse(referer).netloc
+            return f"🔗 {domain}" if domain else f"🔗 {referer[:50]}"
+        except Exception:
+            return f"🔗 {referer[:50]}"
+
 # ============================================
 # NGINX КОНФИГУРАЦИЯ
 # ============================================
@@ -279,6 +400,82 @@ NGINX_DJANGO_TEMPLATE = """server {{
     listen 80;
 }}
 """
+
+NGINX_MAINTENANCE_TEMPLATE = """server {{
+    server_name {domain} www.{domain};
+
+    location / {{
+        root /var/www;
+        try_files /maintenance.html =503;
+        default_type text/html;
+    }}
+
+    {ssl_block}
+}}
+server {{
+    listen 80;
+    server_name {domain} www.{domain};
+    return 301 https://$host$request_uri;
+}}
+"""
+
+REPO_PATH = "/tmp/valentine-landing"
+
+def generate_maintenance_config(site_id: str, domain: str) -> str:
+    """Generate Nginx config for maintenance mode."""
+    cert_path = f"/etc/letsencrypt/live/{domain}"
+    if os.path.exists(f"{cert_path}/fullchain.pem"):
+        ssl_block = (
+            f"listen 443 ssl;\n"
+            f"    ssl_certificate {cert_path}/fullchain.pem;\n"
+            f"    ssl_certificate_key {cert_path}/privkey.pem;\n"
+            f"    include /etc/letsencrypt/options-ssl-nginx.conf;\n"
+            f"    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;"
+        )
+    else:
+        ssl_block = "listen 80;"
+
+    return NGINX_MAINTENANCE_TEMPLATE.format(domain=domain, ssl_block=ssl_block)
+
+async def toggle_maintenance_mode(site_id: str, enable: bool) -> str:
+    """Toggle maintenance mode for a site."""
+    domain = get_site_domain(site_id)
+    if not domain:
+        return "❌ Домен не установлен"
+
+    site = SITES[site_id]
+
+    if enable:
+        config = generate_maintenance_config(site_id, domain)
+    else:
+        config = generate_nginx_config(site_id, domain)
+
+    try:
+        with open(site["nginx_conf"], "w") as f:
+            f.write(config)
+    except Exception as e:
+        return f"❌ Ошибка: {e}"
+
+    result = subprocess.run(["nginx", "-t"], capture_output=True, text=True)
+    if result.returncode != 0:
+        # Rollback
+        config = generate_nginx_config(site_id, domain)
+        with open(site["nginx_conf"], "w") as f:
+            f.write(config)
+        subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
+        return f"❌ Ошибка nginx: {result.stderr[:200]}"
+
+    subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
+    set_maintenance_enabled(site_id, enable)
+
+    if not enable:
+        ssl_ok = await issue_ssl(domain)
+        if ssl_ok:
+            subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
+            return "✅ Сайт восстановлен и SSL обновлён"
+        return "✅ Сайт восстановлен (SSL не обновлён — обновите вручную)"
+
+    return "✅ Тех. работы включены"
 
 def generate_nginx_config(site_id: str, domain: str) -> str:
     """Генерация nginx конфига для сайта"""
@@ -393,6 +590,9 @@ def get_main_menu():
 def get_site_menu(site_id: str):
     """Меню конкретного сайта"""
     site = SITES[site_id]
+    maint = is_maintenance_enabled(site_id)
+    notif = is_notifications_enabled(site_id)
+
     buttons = [
         [types.InlineKeyboardButton(text="🌐 Домен", callback_data=f"domain:{site_id}")],
     ]
@@ -401,6 +601,12 @@ def get_site_menu(site_id: str):
         buttons.insert(0, [types.InlineKeyboardButton(text=link_label, callback_data=f"link:{site_id}")])
     buttons.append([types.InlineKeyboardButton(text="📊 Статистика", callback_data=f"stats:{site_id}")])
     buttons.append([types.InlineKeyboardButton(text="🔒 SSL", callback_data=f"ssl:{site_id}")])
+
+    notif_text = "🔔 Уведомления: ВКЛ" if notif else "🔕 Уведомления: ВЫКЛ"
+    maint_text = "▶️ Включить сайт" if maint else "⏸️ Тех. работы"
+    buttons.append([types.InlineKeyboardButton(text=notif_text, callback_data=f"togglenotif:{site_id}")])
+    buttons.append([types.InlineKeyboardButton(text=maint_text, callback_data=f"togglemaint:{site_id}")])
+    buttons.append([types.InlineKeyboardButton(text="🚀 Деплой", callback_data=f"deploy:{site_id}")])
     buttons.append([types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:main")])
     return types.InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -433,13 +639,19 @@ def site_info_text(site_id: str) -> str:
     """Текст с информацией о сайте"""
     site = SITES[site_id]
     domain = get_site_domain(site_id)
+    maint = is_maintenance_enabled(site_id)
+    notif = is_notifications_enabled(site_id)
+
     lines = [f"{site['emoji']} <b>{site['name']}</b>\n"]
+    if maint:
+        lines.append("🔴 <b>ТЕХРАБОТЫ — сайт отключён</b>")
     lines.append(f"🌐 Домен: <code>{domain or 'не установлен'}</code>")
     if domain:
         lines.append(f"🔗 https://{domain}/")
     if site.get("has_gift_link"):
         link = get_gift_link(site_id)
         lines.append(f"🔗 Ссылка: <code>{link or 'не установлена'}</code>")
+    lines.append(f"🔔 Уведомления: {'ВКЛ' if notif else 'ВЫКЛ'}")
     lines.append(f"⚙️ Тип: {site['type']}, порт {site['proxy_port']}")
     return "\n".join(lines)
 
@@ -540,6 +752,7 @@ async def menu_stats(callback: types.CallbackQuery):
     site_id = callback.data.split(":")[1]
     site = SITES[site_id]
     st = get_stats(site_id)
+    unique_today, unique_total = get_unique_stats(site_id)
 
     visits_today = st.get("visit_daily", 0)
     visits_total = st.get("visit_total", 0)
@@ -557,20 +770,127 @@ async def menu_stats(callback: types.CallbackQuery):
     text = (
         f"{site['emoji']} <b>{site['name']} — Статистика</b>\n\n"
         f"📅 <b>Сегодня:</b>\n"
-        f"   👁 Визитов: <b>{visits_today}</b>\n"
+        f"   👁 Визитов: <b>{visits_today}</b> (👥 {unique_today} уник.)\n"
         f"   🖱 Кликов: <b>{clicks_today}</b>\n"
         f"   📈 Конверсия: <b>{conversion}%</b>\n\n"
         f"📊 <b>Всего:</b>\n"
-        f"   👁 Визитов: <b>{visits_total}</b>\n"
+        f"   👁 Визитов: <b>{visits_total}</b> (👥 {unique_total} уник.)\n"
         f"   🖱 Кликов: <b>{clicks_total}</b>\n"
         f"   📈 Конверсия: <b>{conversion_total}%</b>"
     )
 
-    await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="🔄 Обновить", callback_data=f"stats:{site_id}")],
-        [types.InlineKeyboardButton(text="⬅️ Назад", callback_data=f"site:{site_id}")],
-    ]))
+    try:
+        await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
+            [types.InlineKeyboardButton(text="🔄 Обновить", callback_data=f"stats:{site_id}")],
+            [types.InlineKeyboardButton(text="🗑 Сбросить", callback_data=f"resetstats:{site_id}")],
+            [types.InlineKeyboardButton(text="⬅️ Назад", callback_data=f"site:{site_id}")],
+        ]))
+    except Exception:
+        pass
     await callback.answer()
+
+# --- TOGGLE NOTIFICATIONS ---
+
+@router.callback_query(F.data.startswith("togglenotif:"))
+async def toggle_notif(callback: types.CallbackQuery):
+    site_id = callback.data.split(":")[1]
+    current = is_notifications_enabled(site_id)
+    set_notifications_enabled(site_id, not current)
+    new_state = "🔔 ВКЛ" if not current else "🔕 ВЫКЛ"
+    await callback.answer(f"Уведомления: {new_state}", show_alert=True)
+    await callback.message.edit_text(
+        site_info_text(site_id),
+        reply_markup=get_site_menu(site_id)
+    )
+
+# --- TOGGLE MAINTENANCE ---
+
+@router.callback_query(F.data.startswith("togglemaint:"))
+async def toggle_maint(callback: types.CallbackQuery):
+    site_id = callback.data.split(":")[1]
+    site = SITES[site_id]
+    current = is_maintenance_enabled(site_id)
+
+    await callback.message.edit_text(
+        f"⏳ {'Включаю' if not current else 'Выключаю'} тех. работы для {site['emoji']} {site['name']}..."
+    )
+    await callback.answer()
+
+    result = await toggle_maintenance_mode(site_id, not current)
+
+    await callback.message.edit_text(
+        f"{site['emoji']} <b>{site['name']}</b>\n\n{result}",
+        reply_markup=get_site_menu(site_id)
+    )
+
+# --- RESET STATS ---
+
+@router.callback_query(F.data.startswith("resetstats:"))
+async def reset_stats_handler(callback: types.CallbackQuery):
+    site_id = callback.data.split(":")[1]
+    reset_site_stats(site_id)
+    await callback.answer("✅ Статистика сброшена!", show_alert=True)
+    await menu_stats(callback)
+
+# --- DEPLOY ---
+
+@router.callback_query(F.data.startswith("deploy:"))
+async def deploy_site(callback: types.CallbackQuery):
+    site_id = callback.data.split(":")[1]
+    site = SITES[site_id]
+
+    await callback.message.edit_text(
+        f"🚀 <b>Деплой {site['emoji']} {site['name']}</b>\n\n⏳ Обновляю файлы..."
+    )
+    await callback.answer()
+
+    steps = []
+
+    # Git pull
+    result = subprocess.run(
+        ["git", "pull", "origin", "main"],
+        cwd=REPO_PATH,
+        capture_output=True, text=True, timeout=30
+    )
+    if result.returncode == 0:
+        steps.append("✅ Git pull")
+    else:
+        steps.append(f"❌ Git pull: {result.stderr[:100]}")
+        await callback.message.edit_text(
+            f"🚀 <b>Деплой {site['emoji']} {site['name']}</b>\n\n" + "\n".join(steps),
+            reply_markup=get_site_menu(site_id)
+        )
+        return
+
+    # Copy files
+    if site_id == "wb":
+        cp = subprocess.run(
+            ["cp", f"{REPO_PATH}/index_sber.html", "/var/www/site/index_sber.html"],
+            capture_output=True, text=True
+        )
+        steps.append("✅ index_sber.html" if cp.returncode == 0 else f"❌ {cp.stderr[:80]}")
+
+        # Также копируем maintenance.html
+        subprocess.run(
+            ["cp", f"{REPO_PATH}/maintenance.html", "/var/www/maintenance.html"],
+            capture_output=True, text=True
+        )
+
+    elif site_id == "gos":
+        cp = subprocess.run(
+            ["cp", f"{REPO_PATH}/gosuslugi/sendform/templates/index.html",
+             "/var/www/gosuslugi/sendform/templates/index.html"],
+            capture_output=True, text=True
+        )
+        steps.append("✅ index.html" if cp.returncode == 0 else f"❌ {cp.stderr[:80]}")
+
+        subprocess.run(["pkill", "-HUP", "gunicorn"], capture_output=True, text=True)
+        steps.append("✅ Gunicorn перезапущен")
+
+    await callback.message.edit_text(
+        f"🚀 <b>Деплой {site['emoji']} {site['name']}</b>\n\n" + "\n".join(steps),
+        reply_markup=get_site_menu(site_id)
+    )
 
 # --- ДЕЙСТВИЯ: УСТАНОВИТЬ ДОМЕН ---
 
@@ -912,6 +1232,7 @@ async def api_track_visit(request: Request):
     """Трекинг визита на сайт"""
     body = await request.json()
     site_id = body.get("site", "wb")
+    referer = body.get("referer", "")
     if site_id not in SITES:
         return {"ok": False}
 
@@ -919,6 +1240,7 @@ async def api_track_visit(request: Request):
     ip = request.headers.get("X-Real-IP", request.client.host if request.client else "unknown")
 
     st = increment_stat(site_id, "visit")
+    is_new, uniq_today, uniq_total = track_unique_ip(site_id, ip)
     site = SITES[site_id]
 
     # Определяем устройство кратко
@@ -927,17 +1249,28 @@ async def api_track_visit(request: Request):
               "Chrome" if "Chrome" in user_agent else \
               "Firefox" if "Firefox" in user_agent else "Другой"
 
-    try:
-        await bot.send_message(
-            TRACK_CHANNEL,
-            f"👁 <b>Визит</b> — {site['emoji']} {site['name']}\n\n"
-            f"🌐 IP: <code>{ip}</code>\n"
-            f"{device} | {browser}\n"
-            f"🔍 <code>{user_agent[:200]}</code>\n"
-            f"📊 Сегодня: {st.get('visit_daily', 0)} визитов",
-        )
-    except Exception as e:
-        logger.error(f"Track visit send error: {e}")
+    # GEO
+    geo = await get_geo(ip)
+    geo_line = f"📍 {geo}\n" if geo else ""
+
+    # Referer
+    source = parse_referer(referer)
+    new_badge = " 🆕" if is_new else ""
+
+    if is_notifications_enabled(site_id):
+        try:
+            await bot.send_message(
+                TRACK_CHANNEL,
+                f"👁 <b>Визит</b> — {site['emoji']} {site['name']}{new_badge}\n\n"
+                f"🌐 IP: <code>{ip}</code>\n"
+                f"{geo_line}"
+                f"{device} | {browser}\n"
+                f"{source}\n"
+                f"🔍 <code>{user_agent[:200]}</code>\n"
+                f"📊 Сегодня: {st.get('visit_daily', 0)} визитов (👥 {uniq_today} уник.)",
+            )
+        except Exception as e:
+            logger.error(f"Track visit send error: {e}")
 
     return {"ok": True}
 
@@ -946,6 +1279,7 @@ async def api_track_click(request: Request):
     """Трекинг клика по кнопке"""
     body = await request.json()
     site_id = body.get("site", "wb")
+    referer = body.get("referer", "")
     if site_id not in SITES:
         return {"ok": False}
 
@@ -962,18 +1296,27 @@ async def api_track_click(request: Request):
               "Chrome" if "Chrome" in user_agent else \
               "Firefox" if "Firefox" in user_agent else "Другой"
 
-    try:
-        await bot.send_message(
-            TRACK_CHANNEL,
-            f"🎯 <b>Клик</b> — {site['emoji']} {site['name']}\n\n"
-            f"🔘 {btn_label}\n"
-            f"🌐 IP: <code>{ip}</code>\n"
-            f"{device} | {browser}\n"
-            f"🔍 <code>{user_agent[:200]}</code>\n"
-            f"📊 Сегодня: {st.get('click_daily', 0)} кликов | {st.get('visit_daily', 0)} визитов",
-        )
-    except Exception as e:
-        logger.error(f"Track click send error: {e}")
+    # GEO
+    geo = await get_geo(ip)
+    geo_line = f"📍 {geo}\n" if geo else ""
+
+    source = parse_referer(referer)
+
+    if is_notifications_enabled(site_id):
+        try:
+            await bot.send_message(
+                TRACK_CHANNEL,
+                f"🎯 <b>Клик</b> — {site['emoji']} {site['name']}\n\n"
+                f"🔘 {btn_label}\n"
+                f"🌐 IP: <code>{ip}</code>\n"
+                f"{geo_line}"
+                f"{device} | {browser}\n"
+                f"{source}\n"
+                f"🔍 <code>{user_agent[:200]}</code>\n"
+                f"📊 Сегодня: {st.get('click_daily', 0)} кликов | {st.get('visit_daily', 0)} визитов",
+            )
+        except Exception as e:
+            logger.error(f"Track click send error: {e}")
 
     return {"ok": True}
 
