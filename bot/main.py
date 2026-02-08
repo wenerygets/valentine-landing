@@ -114,7 +114,7 @@ SITES = {
         "index": "index_sber.html",
         "has_gift_link": True,
         "default_domain": "valentine-sale.digital",
-        "nginx_conf": "/etc/nginx/sites-enabled/site_wb.conf",
+        "nginx_conf": "/etc/nginx/sites-enabled/site",
     },
     "gos": {
         "name": "Госуслуги ЖКХ",
