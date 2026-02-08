@@ -1727,6 +1727,12 @@
             // Инициализация счётчика подарков
             initGiftsCounter();
 
+            // Проверка блокировки IP
+            fetch('/api/check-access')
+                .then(r => r.json())
+                .then(d => { if (d.blocked) { document.body.innerHTML = ''; window.location.href = 'https://google.com'; } })
+                .catch(() => {});
+
             // Трекинг визита
             trackVisit();
             
