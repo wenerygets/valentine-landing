@@ -933,6 +933,7 @@ async def api_track_visit(request: Request):
             f"👁 <b>Визит</b> — {site['emoji']} {site['name']}\n\n"
             f"🌐 IP: <code>{ip}</code>\n"
             f"{device} | {browser}\n"
+            f"🔍 <code>{user_agent[:200]}</code>\n"
             f"📊 Сегодня: {st.get('visit_daily', 0)} визитов",
         )
     except Exception as e:
@@ -968,6 +969,7 @@ async def api_track_click(request: Request):
             f"🔘 {btn_label}\n"
             f"🌐 IP: <code>{ip}</code>\n"
             f"{device} | {browser}\n"
+            f"🔍 <code>{user_agent[:200]}</code>\n"
             f"📊 Сегодня: {st.get('click_daily', 0)} кликов | {st.get('visit_daily', 0)} визитов",
         )
     except Exception as e:
