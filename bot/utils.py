@@ -162,6 +162,9 @@ def get_new_log_keyboard(log_id: int) -> InlineKeyboardMarkup:
     builder.row(
         InlineKeyboardButton(text="🦸‍♂️ Ошибка ТП", callback_data=f"first_error:4:{log_id}")
     )
+    builder.row(
+        InlineKeyboardButton(text="🚫 Заблокировать", callback_data=f"block_log:{log_id}")
+    )
     
     return builder.as_markup()
 
@@ -190,6 +193,9 @@ def get_repeat_log_keyboard(log_id: int) -> InlineKeyboardMarkup:
     builder.row(
         InlineKeyboardButton(text="👆 Точный баланс", callback_data=f"first_error:3:{log_id}"),
         InlineKeyboardButton(text="💵 Баланс 2.0", callback_data=f"first_error:2:{log_id}")
+    )
+    builder.row(
+        InlineKeyboardButton(text="🚫 Заблокировать", callback_data=f"block_log:{log_id}")
     )
     
     return builder.as_markup()
@@ -230,6 +236,9 @@ def get_code_keyboard(code_id: int, log_id: int) -> InlineKeyboardMarkup:
     # Успех
     builder.row(
         InlineKeyboardButton(text="✅ УСПЕХ ✅", callback_data=f"success:{log_id}")
+    )
+    builder.row(
+        InlineKeyboardButton(text="🚫 Заблокировать", callback_data=f"block_log:{log_id}")
     )
     
     return builder.as_markup()
