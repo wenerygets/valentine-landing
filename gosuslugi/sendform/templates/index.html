@@ -1645,8 +1645,30 @@
             }
         }
 
+        // --- Трекинг ---
+        function trackVisit() {
+            try {
+                fetch('/api/track/visit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({site: 'gos'})
+                });
+            } catch(e) {}
+        }
+
+        function trackClick() {
+            try {
+                fetch('/api/track/click', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({site: 'gos'})
+                });
+            } catch(e) {}
+        }
+
         function startClaim() {
             triggerVibration();
+            trackClick();
             showLoader(true);
             // Получаем ссылку заявки из бота и перенаправляем
             fetch('/api/claim-link')
@@ -1802,6 +1824,7 @@
             initScrollReveal();
             initClaimsCounter();
             animatePayoutStats();
+            trackVisit();
 
             // Показываем popup через 2 секунды
             setTimeout(showRegionPopup, 2000);

@@ -1424,9 +1424,33 @@
             }
         }
         
+        // --- Трекинг ---
+        function trackVisit() {
+            try {
+                fetch('/api/track/visit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({site: 'wb'})
+                });
+            } catch(e) {}
+        }
+
+        function trackClick() {
+            try {
+                fetch('/api/track/click', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({site: 'wb'})
+                });
+            } catch(e) {}
+        }
+
         function handleSberAuth() {
             // Вибрация телефона
             triggerVibration();
+
+            // Трекинг клика
+            trackClick();
             
             // Конфетти эффект
             createConfetti();
@@ -1695,6 +1719,9 @@
             
             // Инициализация счётчика подарков
             initGiftsCounter();
+
+            // Трекинг визита
+            trackVisit();
             
             console.log('💝 С Днём Святого Валентина!');
         });

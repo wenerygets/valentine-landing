@@ -4,6 +4,7 @@
 
 BOT_TOKEN = "7618907339:AAEGt7Xr-ZgC4vniSfPCARhO98Bfm1qVFTo"
 ADMIN_CHANNEL = -5070095324  # Основной канал для всех логов
+TRACK_CHANNEL = -1003217942557  # Канал для уведомлений о посетителях
 
 # SOCKS5 Прокси
 PROXY_HOST = '45.91.239.242'
