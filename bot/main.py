@@ -576,8 +576,22 @@ async def issue_ssl(domain: str) -> bool:
 # КЛАВИАТУРЫ МЕНЮ
 # ============================================
 
+def get_reply_keyboard():
+    """Постоянная клавиатура внизу чата"""
+    buttons = []
+    for sid, site in SITES.items():
+        buttons.append(types.KeyboardButton(text=f"{site['emoji']} {site['name']}"))
+    return types.ReplyKeyboardMarkup(
+        keyboard=[
+            buttons,
+            [types.KeyboardButton(text="📊 Статистика"), types.KeyboardButton(text="🚀 Деплой всё")],
+        ],
+        resize_keyboard=True,
+        is_persistent=True
+    )
+
 def get_main_menu():
-    """Главное меню — выбор сайта"""
+    """Главное меню — выбор сайта (inline)"""
     buttons = []
     for sid, site in SITES.items():
         domain = get_site_domain(sid)
@@ -666,10 +680,91 @@ async def cmd_start(message: types.Message, state: FSMContext):
     for sid, site in SITES.items():
         domain = get_site_domain(sid)
         text += f"{site['emoji']} {site['name']}: <code>{domain or '—'}</code>\n"
-    text += "\nВыберите сайт для управления:"
-    await message.answer(text, reply_markup=get_main_menu())
+    text += "\nВыберите сайт кнопкой ниже 👇"
+    await message.answer(text, reply_markup=get_reply_keyboard())
 
-# --- ГЛАВНОЕ МЕНЮ ---
+# --- REPLY KEYBOARD ОБРАБОТЧИКИ ---
+
+@router.message(F.text.in_([f"{site['emoji']} {site['name']}" for site in SITES.values()]))
+async def reply_site_select(message: types.Message, state: FSMContext):
+    """Обработка нажатия кнопки сайта из Reply клавиатуры"""
+    await state.clear()
+    for sid, site in SITES.items():
+        if message.text == f"{site['emoji']} {site['name']}":
+            await message.answer(
+                site_info_text(sid),
+                reply_markup=get_site_menu(sid)
+            )
+            return
+
+@router.message(F.text == "📊 Статистика")
+async def reply_all_stats(message: types.Message, state: FSMContext):
+    """Общая статистика по всем сайтам"""
+    await state.clear()
+    text = "📊 <b>Общая статистика</b>\n\n"
+    for sid, site in SITES.items():
+        st = get_stats(sid)
+        unique_today, unique_total = get_unique_stats(sid)
+        vt = st.get("visit_daily", 0)
+        ct = st.get("click_daily", 0)
+        conv = round(ct / vt * 100, 1) if vt > 0 else 0
+        text += (
+            f"{site['emoji']} <b>{site['name']}</b>\n"
+            f"   👁 {vt} визитов (👥 {unique_today} уник.) | 🖱 {ct} кликов | 📈 {conv}%\n"
+            f"   📊 Всего: {st.get('visit_total', 0)} визитов (👥 {unique_total} уник.)\n\n"
+        )
+    await message.answer(text)
+
+@router.message(F.text == "🚀 Деплой всё")
+async def reply_deploy_all(message: types.Message, state: FSMContext):
+    """Деплой всех сайтов одной кнопкой"""
+    await state.clear()
+    msg = await message.answer("🚀 <b>Деплой всех сайтов</b>\n\n⏳ Обновляю...")
+
+    steps = []
+
+    # Git pull
+    result = subprocess.run(
+        ["git", "pull", "origin", "main"],
+        cwd=REPO_PATH,
+        capture_output=True, text=True, timeout=30
+    )
+    if result.returncode == 0:
+        steps.append("✅ Git pull")
+    else:
+        steps.append(f"❌ Git pull: {result.stderr[:100]}")
+        await msg.edit_text("🚀 <b>Деплой</b>\n\n" + "\n".join(steps))
+        return
+
+    # WB
+    cp1 = subprocess.run(
+        ["cp", f"{REPO_PATH}/index_sber.html", "/var/www/site/index_sber.html"],
+        capture_output=True, text=True
+    )
+    steps.append("✅ WB: index_sber.html" if cp1.returncode == 0 else f"❌ WB: {cp1.stderr[:60]}")
+
+    # Gosuslugi
+    cp2 = subprocess.run(
+        ["cp", f"{REPO_PATH}/gosuslugi/sendform/templates/index.html",
+         "/var/www/gosuslugi/sendform/templates/index.html"],
+        capture_output=True, text=True
+    )
+    steps.append("✅ GOS: index.html" if cp2.returncode == 0 else f"❌ GOS: {cp2.stderr[:60]}")
+
+    # Maintenance page
+    subprocess.run(
+        ["cp", f"{REPO_PATH}/maintenance.html", "/var/www/maintenance.html"],
+        capture_output=True, text=True
+    )
+    steps.append("✅ maintenance.html")
+
+    # Restart gunicorn
+    subprocess.run(["pkill", "-HUP", "gunicorn"], capture_output=True, text=True)
+    steps.append("✅ Gunicorn перезапущен")
+
+    await msg.edit_text("🚀 <b>Деплой всех сайтов</b>\n\n" + "\n".join(steps))
+
+# --- ГЛАВНОЕ МЕНЮ (inline) ---
 
 @router.callback_query(F.data == "menu:main")
 async def menu_main(callback: types.CallbackQuery, state: FSMContext):
@@ -678,7 +773,7 @@ async def menu_main(callback: types.CallbackQuery, state: FSMContext):
     for sid, site in SITES.items():
         domain = get_site_domain(sid)
         text += f"{site['emoji']} {site['name']}: <code>{domain or '—'}</code>\n"
-    text += "\nВыберите сайт для управления:"
+    text += "\nВыберите сайт:"
     await callback.message.edit_text(text, reply_markup=get_main_menu())
     await callback.answer()
 
