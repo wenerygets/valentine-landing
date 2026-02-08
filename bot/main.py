@@ -165,8 +165,9 @@ NGINX_TEMPLATE = """server {{
 }}
 """
 
-async def change_domain(new_domain: str) -> str:
-    """Сменить домен сайта: обновить nginx + получить SSL"""
+async def change_domain(new_domain: str) -> tuple[str, bool]:
+    """Сменить домен сайта: обновить nginx + получить SSL.
+    Возвращает (текст_результата, ssl_успешен)"""
     steps = []
     
     # 1. Записываем новый nginx конфиг (без SSL — certbot добавит сам)
@@ -176,60 +177,69 @@ async def change_domain(new_domain: str) -> str:
             f.write(config)
         steps.append("✅ Nginx конфиг обновлён")
     except Exception as e:
-        return f"❌ Ошибка записи nginx конфига: {e}"
+        return f"❌ Ошибка записи nginx конфига: {e}", False
     
     # 2. Проверяем конфиг nginx
     result = subprocess.run(["nginx", "-t"], capture_output=True, text=True)
     if result.returncode != 0:
         steps.append(f"❌ Ошибка nginx -t: {result.stderr}")
-        return "\n".join(steps)
+        return "\n".join(steps), False
     steps.append("✅ Nginx конфиг валидный")
     
     # 3. Перезагружаем nginx
     result = subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
     if result.returncode != 0:
         steps.append(f"❌ Ошибка reload nginx: {result.stderr}")
-        return "\n".join(steps)
+        return "\n".join(steps), False
     steps.append("✅ Nginx перезагружен")
     
-    # 4. Получаем SSL через certbot
-    result = subprocess.run([
-        "certbot", "--nginx",
-        "-d", new_domain,
-        "-d", f"www.{new_domain}",
-        "--non-interactive",
-        "--agree-tos",
-        "--redirect",
-        "--register-unsafely-without-email"
-    ], capture_output=True, text=True, timeout=120)
+    # 4. Сохраняем домен (до SSL, чтобы retry знал домен)
+    set_domain_setting(new_domain)
+    steps.append(f"✅ Домен сохранён: {new_domain}")
     
-    if result.returncode != 0:
-        # Пробуем без www
-        result2 = subprocess.run([
+    # 5. Получаем SSL
+    ssl_ok = await issue_ssl(new_domain)
+    if ssl_ok:
+        steps.append("✅ SSL сертификат установлен")
+        subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
+        steps.append("✅ Nginx перезагружен с SSL")
+    else:
+        steps.append("❌ SSL не установлен — DNS ещё не перенеслись?")
+        steps.append("Сайт работает по HTTP. Нажмите кнопку ниже когда DNS обновятся.")
+    
+    return "\n".join(steps), ssl_ok
+
+async def issue_ssl(domain: str) -> bool:
+    """Попытка получить SSL сертификат. Возвращает True если успешно."""
+    try:
+        # Пробуем с www
+        result = subprocess.run([
             "certbot", "--nginx",
-            "-d", new_domain,
+            "-d", domain,
+            "-d", f"www.{domain}",
             "--non-interactive",
             "--agree-tos",
             "--redirect",
             "--register-unsafely-without-email"
         ], capture_output=True, text=True, timeout=120)
         
-        if result2.returncode != 0:
-            steps.append(f"⚠️ SSL не установлен (сайт работает по HTTP): {result2.stderr[:200]}")
-        else:
-            steps.append("✅ SSL сертификат получен (без www)")
-    else:
-        steps.append("✅ SSL сертификат получен")
-    
-    # 5. Финальный reload
-    subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
-    steps.append("✅ Nginx перезагружен с SSL")
-    
-    # 6. Сохраняем домен
-    set_domain_setting(new_domain)
-    steps.append(f"✅ Домен сохранён: {new_domain}")
-    
-    return "\n".join(steps)
+        if result.returncode == 0:
+            return True
+        
+        # Пробуем без www
+        result2 = subprocess.run([
+            "certbot", "--nginx",
+            "-d", domain,
+            "--non-interactive",
+            "--agree-tos",
+            "--redirect",
+            "--register-unsafely-without-email"
+        ], capture_output=True, text=True, timeout=120)
+        
+        return result2.returncode == 0
+    except Exception as e:
+        logger.error(f"SSL error: {e}")
+        return False
 
 # ============================================
 # КЛАВИАТУРЫ МЕНЮ
@@ -253,7 +263,15 @@ def get_domain_menu():
     """Меню домена"""
     return types.InlineKeyboardMarkup(inline_keyboard=[
         [types.InlineKeyboardButton(text="✏️ Изменить домен", callback_data="action:setdomain")],
+        [types.InlineKeyboardButton(text="🔒 Повторить SSL", callback_data="action:retry_ssl")],
         [types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:main")],
+    ])
+
+def get_retry_ssl_menu():
+    """Меню после неудачного SSL"""
+    return types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="🔄 Повторить SSL", callback_data="action:retry_ssl")],
+        [types.InlineKeyboardButton(text="⬅️ Главное меню", callback_data="menu:main")],
     ])
 
 def get_cancel_menu():
@@ -363,14 +381,54 @@ async def process_domain(message: types.Message, state: FSMContext):
         f"<code>{old_domain}</code> → <code>{new_domain}</code>"
     )
     
-    result = await change_domain(new_domain)
+    result, ssl_ok = await change_domain(new_domain)
     await state.clear()
     
-    await msg.edit_text(
-        f"🌐 Смена домена: <code>{old_domain}</code> → <code>{new_domain}</code>\n\n{result}",
-        reply_markup=get_main_menu()
+    if ssl_ok:
+        await msg.edit_text(
+            f"🌐 Смена домена: <code>{old_domain}</code> → <code>{new_domain}</code>\n\n{result}",
+            reply_markup=get_main_menu()
+        )
+    else:
+        await msg.edit_text(
+            f"🌐 Смена домена: <code>{old_domain}</code> → <code>{new_domain}</code>\n\n{result}",
+            reply_markup=get_retry_ssl_menu()
+        )
+    logger.info(f"Domain changed: {old_domain} -> {new_domain}, SSL: {ssl_ok}")
+
+@router.callback_query(F.data == "action:retry_ssl")
+async def action_retry_ssl(callback: types.CallbackQuery):
+    domain = get_domain()
+    
+    await callback.message.edit_text(
+        f"🔄 <b>Получаю SSL для</b> <code>{domain}</code>...\n\n"
+        f"⏳ Подождите, это может занять до 2 минут..."
     )
-    logger.info(f"Domain changed: {old_domain} -> {new_domain}")
+    await callback.answer()
+    
+    ssl_ok = await issue_ssl(domain)
+    
+    if ssl_ok:
+        subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
+        await callback.message.edit_text(
+            f"🔒 <b>SSL для</b> <code>{domain}</code>\n\n"
+            f"✅ SSL сертификат успешно установлен!\n"
+            f"✅ Nginx перезагружен\n\n"
+            f"🌐 Сайт доступен: https://{domain}/",
+            reply_markup=get_main_menu()
+        )
+        logger.info(f"SSL issued successfully for {domain}")
+    else:
+        await callback.message.edit_text(
+            f"🔒 <b>SSL для</b> <code>{domain}</code>\n\n"
+            f"❌ SSL не удалось установить\n\n"
+            f"Возможные причины:\n"
+            f"• DNS ещё не обновились (подождите 5-30 мин)\n"
+            f"• A-запись домена не указывает на IP сервера\n\n"
+            f"Попробуйте ещё раз позже 👇",
+            reply_markup=get_retry_ssl_menu()
+        )
+        logger.warning(f"SSL failed for {domain}")
 
 @router.callback_query(F.data == "_")
 async def empty_callback(callback: types.CallbackQuery):
