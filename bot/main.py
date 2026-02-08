@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Valentine Sale Bot - Полная версия с FastAPI + aiogram
+Multi-Site Bot — Управление несколькими лендингами через Telegram
+Wildberries + Госуслуги ЖКХ
 """
 
 import asyncio
@@ -99,59 +100,91 @@ app = FastAPI(docs_url=None, lifespan=lifespan)
 # templates = Jinja2Templates(directory="../templates")
 
 # ============================================
+# КОНФИГУРАЦИЯ САЙТОВ
+# ============================================
+
+SITES = {
+    "wb": {
+        "name": "Wildberries",
+        "emoji": "💜",
+        "root": "/var/www/site",
+        "type": "static",
+        "proxy_port": 5000,
+        "index": "index_sber.html",
+        "has_gift_link": True,
+        "default_domain": "valentine-sale.digital",
+        "nginx_conf": "/etc/nginx/sites-enabled/site_wb.conf",
+    },
+    "gos": {
+        "name": "Госуслуги ЖКХ",
+        "emoji": "🏛️",
+        "root": "/var/www/gosuslugi",
+        "type": "django",
+        "proxy_port": 8000,
+        "static_root": "/var/www/gosuslugi/staticfiles",
+        "has_gift_link": False,
+        "default_domain": "",
+        "nginx_conf": "/etc/nginx/sites-enabled/site_gos.conf",
+    },
+}
+
+# ============================================
 # НАСТРОЙКИ (JSON файл)
 # ============================================
 SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "data", "settings.json")
 
 def load_settings() -> dict:
-    """Загрузка настроек из JSON файла"""
     if os.path.exists(SETTINGS_FILE):
         try:
             with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except:
+        except Exception:
             pass
-    return {"gift_link": ""}
+    return {}
 
 def save_settings(settings: dict):
-    """Сохранение настроек в JSON файл"""
     os.makedirs(os.path.dirname(SETTINGS_FILE), exist_ok=True)
     with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
         json.dump(settings, f, ensure_ascii=False, indent=2)
 
+def get_site_setting(site_id: str, key: str, default="") -> str:
+    settings = load_settings()
+    return settings.get("sites", {}).get(site_id, {}).get(key, default)
+
+def set_site_setting(site_id: str, key: str, value: str):
+    settings = load_settings()
+    if "sites" not in settings:
+        settings["sites"] = {}
+    if site_id not in settings["sites"]:
+        settings["sites"][site_id] = {}
+    settings["sites"][site_id][key] = value
+    save_settings(settings)
+
+def get_site_domain(site_id: str) -> str:
+    return get_site_setting(site_id, "domain", SITES[site_id]["default_domain"])
+
+def set_site_domain(site_id: str, domain: str):
+    set_site_setting(site_id, "domain", domain)
+
 def get_gift_link() -> str:
-    """Получить текущую ссылку подарка"""
-    return load_settings().get("gift_link", "")
+    """Ссылка подарка (только для wb)"""
+    return get_site_setting("wb", "gift_link", "")
 
 def set_gift_link(link: str):
-    """Установить ссылку подарка"""
-    settings = load_settings()
-    settings["gift_link"] = link
-    save_settings(settings)
-
-def get_domain() -> str:
-    """Получить текущий домен"""
-    return load_settings().get("domain", "valentine-sale.digital")
-
-def set_domain_setting(domain: str):
-    """Сохранить домен в настройки"""
-    settings = load_settings()
-    settings["domain"] = domain
-    save_settings(settings)
+    set_site_setting("wb", "gift_link", link)
 
 # ============================================
 # NGINX КОНФИГУРАЦИЯ
 # ============================================
-NGINX_CONF_PATH = "/etc/nginx/sites-enabled/default"
 
-NGINX_TEMPLATE = """server {{
+NGINX_STATIC_TEMPLATE = """server {{
     server_name {domain} www.{domain};
 
-    root /var/www/site;
-    index index_sber.html index.html;
+    root {root};
+    index {index} index.html;
 
     location /api/ {{
-        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_pass http://127.0.0.1:{proxy_port}/api/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -165,39 +198,87 @@ NGINX_TEMPLATE = """server {{
 }}
 """
 
-async def change_domain(new_domain: str) -> tuple[str, bool]:
-    """Сменить домен сайта: обновить nginx + получить SSL.
-    Возвращает (текст_результата, ssl_успешен)"""
+NGINX_DJANGO_TEMPLATE = """server {{
+    server_name {domain} www.{domain};
+
+    location /static/ {{
+        alias {static_root}/;
+    }}
+
+    location / {{
+        proxy_pass http://127.0.0.1:{proxy_port};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }}
+
+    listen 80;
+}}
+"""
+
+def generate_nginx_config(site_id: str, domain: str) -> str:
+    """Генерация nginx конфига для сайта"""
+    site = SITES[site_id]
+    if site["type"] == "static":
+        return NGINX_STATIC_TEMPLATE.format(
+            domain=domain,
+            root=site["root"],
+            index=site.get("index", "index.html"),
+            proxy_port=site["proxy_port"],
+        )
+    elif site["type"] == "django":
+        return NGINX_DJANGO_TEMPLATE.format(
+            domain=domain,
+            static_root=site.get("static_root", site["root"] + "/staticfiles"),
+            proxy_port=site["proxy_port"],
+        )
+    return ""
+
+async def change_site_domain(site_id: str, new_domain: str) -> tuple[str, bool]:
+    """Сменить домен сайта: обновить nginx + получить SSL."""
+    site = SITES[site_id]
     steps = []
-    
-    # 1. Записываем новый nginx конфиг (без SSL — certbot добавит сам)
+
+    # 1. Генерируем и записываем nginx конфиг
     try:
-        config = NGINX_TEMPLATE.format(domain=new_domain)
-        with open(NGINX_CONF_PATH, "w") as f:
+        config = generate_nginx_config(site_id, new_domain)
+        conf_path = site["nginx_conf"]
+        with open(conf_path, "w") as f:
             f.write(config)
         steps.append("✅ Nginx конфиг обновлён")
     except Exception as e:
         return f"❌ Ошибка записи nginx конфига: {e}", False
-    
-    # 2. Проверяем конфиг nginx
+
+    # 2. Удаляем default если есть (избежать конфликтов)
+    default_path = "/etc/nginx/sites-enabled/default"
+    if os.path.exists(default_path):
+        try:
+            os.remove(default_path)
+            steps.append("✅ Удалён старый default конфиг")
+        except Exception:
+            pass
+
+    # 3. Проверяем nginx
     result = subprocess.run(["nginx", "-t"], capture_output=True, text=True)
     if result.returncode != 0:
         steps.append(f"❌ Ошибка nginx -t: {result.stderr}")
         return "\n".join(steps), False
     steps.append("✅ Nginx конфиг валидный")
-    
-    # 3. Перезагружаем nginx
+
+    # 4. Перезагружаем nginx
     result = subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
     if result.returncode != 0:
         steps.append(f"❌ Ошибка reload nginx: {result.stderr}")
         return "\n".join(steps), False
     steps.append("✅ Nginx перезагружен")
-    
-    # 4. Сохраняем домен (до SSL, чтобы retry знал домен)
-    set_domain_setting(new_domain)
+
+    # 5. Сохраняем домен
+    set_site_domain(site_id, new_domain)
     steps.append(f"✅ Домен сохранён: {new_domain}")
-    
-    # 5. Получаем SSL
+
+    # 6. Получаем SSL
     ssl_ok = await issue_ssl(new_domain)
     if ssl_ok:
         steps.append("✅ SSL сертификат установлен")
@@ -205,37 +286,28 @@ async def change_domain(new_domain: str) -> tuple[str, bool]:
         steps.append("✅ Nginx перезагружен с SSL")
     else:
         steps.append("❌ SSL не установлен — DNS ещё не перенеслись?")
-        steps.append("Сайт работает по HTTP. Нажмите кнопку ниже когда DNS обновятся.")
-    
+        steps.append("Нажмите кнопку ниже когда DNS обновятся.")
+
     return "\n".join(steps), ssl_ok
 
 async def issue_ssl(domain: str) -> bool:
-    """Попытка получить SSL сертификат. Возвращает True если успешно."""
+    """Попытка получить SSL сертификат."""
     try:
-        # Пробуем с www
         result = subprocess.run([
             "certbot", "--nginx",
-            "-d", domain,
-            "-d", f"www.{domain}",
-            "--non-interactive",
-            "--agree-tos",
-            "--redirect",
-            "--register-unsafely-without-email"
+            "-d", domain, "-d", f"www.{domain}",
+            "--non-interactive", "--agree-tos",
+            "--redirect", "--register-unsafely-without-email"
         ], capture_output=True, text=True, timeout=120)
-        
         if result.returncode == 0:
             return True
-        
-        # Пробуем без www
+
         result2 = subprocess.run([
             "certbot", "--nginx",
             "-d", domain,
-            "--non-interactive",
-            "--agree-tos",
-            "--redirect",
-            "--register-unsafely-without-email"
+            "--non-interactive", "--agree-tos",
+            "--redirect", "--register-unsafely-without-email"
         ], capture_output=True, text=True, timeout=120)
-        
         return result2.returncode == 0
     except Exception as e:
         logger.error(f"SSL error: {e}")
@@ -246,39 +318,66 @@ async def issue_ssl(domain: str) -> bool:
 # ============================================
 
 def get_main_menu():
-    """Главное меню"""
+    """Главное меню — выбор сайта"""
+    buttons = []
+    for sid, site in SITES.items():
+        domain = get_site_domain(sid)
+        label = f"{site['emoji']} {site['name']}"
+        if domain:
+            label += f"  ({domain})"
+        buttons.append([types.InlineKeyboardButton(text=label, callback_data=f"site:{sid}")])
+    return types.InlineKeyboardMarkup(inline_keyboard=buttons)
+
+def get_site_menu(site_id: str):
+    """Меню конкретного сайта"""
+    site = SITES[site_id]
+    buttons = [
+        [types.InlineKeyboardButton(text="🌐 Домен", callback_data=f"domain:{site_id}")],
+    ]
+    if site.get("has_gift_link"):
+        buttons.insert(0, [types.InlineKeyboardButton(text="🎁 Ссылка подарка", callback_data=f"link:{site_id}")])
+    buttons.append([types.InlineKeyboardButton(text="🔒 SSL", callback_data=f"ssl:{site_id}")])
+    buttons.append([types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:main")])
+    return types.InlineKeyboardMarkup(inline_keyboard=buttons)
+
+def get_domain_actions(site_id: str):
+    """Кнопки для управления доменом"""
     return types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="🎁 Ссылка подарка", callback_data="menu:link")],
-        [types.InlineKeyboardButton(text="🌐 Домен сайта", callback_data="menu:domain")],
+        [types.InlineKeyboardButton(text="✏️ Изменить домен", callback_data=f"setdomain:{site_id}")],
+        [types.InlineKeyboardButton(text="🔒 Повторить SSL", callback_data=f"retryssl:{site_id}")],
+        [types.InlineKeyboardButton(text="⬅️ Назад", callback_data=f"site:{site_id}")],
     ])
 
-def get_link_menu():
-    """Меню ссылки подарка"""
+def get_link_actions(site_id: str):
     return types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="✏️ Изменить ссылку", callback_data="action:setlink")],
-        [types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:main")],
+        [types.InlineKeyboardButton(text="✏️ Изменить ссылку", callback_data=f"setlink:{site_id}")],
+        [types.InlineKeyboardButton(text="⬅️ Назад", callback_data=f"site:{site_id}")],
     ])
 
-def get_domain_menu():
-    """Меню домена"""
+def get_retry_ssl_menu(site_id: str):
     return types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="✏️ Изменить домен", callback_data="action:setdomain")],
-        [types.InlineKeyboardButton(text="🔒 Повторить SSL", callback_data="action:retry_ssl")],
-        [types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:main")],
-    ])
-
-def get_retry_ssl_menu():
-    """Меню после неудачного SSL"""
-    return types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="🔄 Повторить SSL", callback_data="action:retry_ssl")],
+        [types.InlineKeyboardButton(text="🔄 Повторить SSL", callback_data=f"retryssl:{site_id}")],
         [types.InlineKeyboardButton(text="⬅️ Главное меню", callback_data="menu:main")],
     ])
 
 def get_cancel_menu():
-    """Кнопка отмены"""
     return types.InlineKeyboardMarkup(inline_keyboard=[
         [types.InlineKeyboardButton(text="❌ Отмена", callback_data="menu:main")],
     ])
+
+def site_info_text(site_id: str) -> str:
+    """Текст с информацией о сайте"""
+    site = SITES[site_id]
+    domain = get_site_domain(site_id)
+    lines = [f"{site['emoji']} <b>{site['name']}</b>\n"]
+    lines.append(f"🌐 Домен: <code>{domain or 'не установлен'}</code>")
+    if domain:
+        lines.append(f"🔗 https://{domain}/")
+    if site.get("has_gift_link"):
+        link = get_gift_link()
+        lines.append(f"🎁 Ссылка: <code>{link or 'не установлена'}</code>")
+    lines.append(f"⚙️ Тип: {site['type']}, порт {site['proxy_port']}")
+    return "\n".join(lines)
 
 # ============================================
 # TELEGRAM ОБРАБОТЧИКИ
@@ -287,148 +386,200 @@ def get_cancel_menu():
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
-    link = get_gift_link()
-    domain = get_domain()
-    await message.answer(
-        f"🤖 <b>Valentine Sale Bot</b>\n\n"
-        f"🎁 Ссылка: <code>{link or 'не установлена'}</code>\n"
-        f"🌐 Домен: <code>{domain}</code>",
-        reply_markup=get_main_menu()
-    )
+    text = "🤖 <b>Управление сайтами</b>\n\n"
+    for sid, site in SITES.items():
+        domain = get_site_domain(sid)
+        text += f"{site['emoji']} {site['name']}: <code>{domain or '—'}</code>\n"
+    text += "\nВыберите сайт для управления:"
+    await message.answer(text, reply_markup=get_main_menu())
 
-# --- НАВИГАЦИЯ МЕНЮ ---
+# --- ГЛАВНОЕ МЕНЮ ---
 
 @router.callback_query(F.data == "menu:main")
 async def menu_main(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
-    link = get_gift_link()
-    domain = get_domain()
+    text = "🤖 <b>Управление сайтами</b>\n\n"
+    for sid, site in SITES.items():
+        domain = get_site_domain(sid)
+        text += f"{site['emoji']} {site['name']}: <code>{domain or '—'}</code>\n"
+    text += "\nВыберите сайт для управления:"
+    await callback.message.edit_text(text, reply_markup=get_main_menu())
+    await callback.answer()
+
+# --- МЕНЮ САЙТА ---
+
+@router.callback_query(F.data.startswith("site:"))
+async def menu_site(callback: types.CallbackQuery):
+    site_id = callback.data.split(":")[1]
+    if site_id not in SITES:
+        await callback.answer("❌ Сайт не найден", show_alert=True)
+        return
     await callback.message.edit_text(
-        f"🤖 <b>Valentine Sale Bot</b>\n\n"
-        f"🎁 Ссылка: <code>{link or 'не установлена'}</code>\n"
-        f"🌐 Домен: <code>{domain}</code>",
-        reply_markup=get_main_menu()
+        site_info_text(site_id),
+        reply_markup=get_site_menu(site_id)
     )
     await callback.answer()
 
-@router.callback_query(F.data == "menu:link")
+# --- ДОМЕН ---
+
+@router.callback_query(F.data.startswith("domain:"))
+async def menu_domain(callback: types.CallbackQuery):
+    site_id = callback.data.split(":")[1]
+    site = SITES[site_id]
+    domain = get_site_domain(site_id)
+    text = f"{site['emoji']} <b>{site['name']} — Домен</b>\n\n"
+    if domain:
+        text += f"Текущий: <code>{domain}</code>\nСайт: https://{domain}/"
+    else:
+        text += "⚠️ Домен не установлен"
+    await callback.message.edit_text(text, reply_markup=get_domain_actions(site_id))
+    await callback.answer()
+
+# --- ССЫЛКА ПОДАРКА ---
+
+@router.callback_query(F.data.startswith("link:"))
 async def menu_link(callback: types.CallbackQuery):
+    site_id = callback.data.split(":")[1]
+    site = SITES[site_id]
     link = get_gift_link()
-    text = f"🎁 <b>Ссылка подарка</b>\n\n"
+    text = f"{site['emoji']} <b>{site['name']} — Ссылка подарка</b>\n\n"
     if link:
         text += f"Текущая: <code>{link}</code>"
     else:
         text += "⚠️ Не установлена"
-    await callback.message.edit_text(text, reply_markup=get_link_menu())
+    await callback.message.edit_text(text, reply_markup=get_link_actions(site_id))
     await callback.answer()
 
-@router.callback_query(F.data == "menu:domain")
-async def menu_domain(callback: types.CallbackQuery):
-    domain = get_domain()
+# --- SSL ---
+
+@router.callback_query(F.data.startswith("ssl:"))
+async def menu_ssl(callback: types.CallbackQuery):
+    site_id = callback.data.split(":")[1]
+    site = SITES[site_id]
+    domain = get_site_domain(site_id)
+    if not domain:
+        await callback.answer("⚠️ Сначала установите домен!", show_alert=True)
+        return
     await callback.message.edit_text(
-        f"🌐 <b>Домен сайта</b>\n\n"
-        f"Текущий: <code>{domain}</code>\n"
-        f"Сайт: https://{domain}/",
-        reply_markup=get_domain_menu()
+        f"{site['emoji']} <b>{site['name']} — SSL</b>\n\n"
+        f"Домен: <code>{domain}</code>\n\n"
+        f"Нажмите кнопку чтобы выпустить/обновить SSL сертификат:",
+        reply_markup=get_retry_ssl_menu(site_id)
     )
     await callback.answer()
 
-# --- ДЕЙСТВИЯ ---
+# --- ДЕЙСТВИЯ: УСТАНОВИТЬ ДОМЕН ---
 
-@router.callback_query(F.data == "action:setlink")
-async def action_setlink(callback: types.CallbackQuery, state: FSMContext):
-    await state.set_state(BotStates.waiting_link)
-    await callback.message.edit_text(
-        "🎁 <b>Отправьте новую ссылку подарка:</b>\n\n"
-        "Например: <code>https://example.com/path</code>",
-        reply_markup=get_cancel_menu()
-    )
-    await callback.answer()
-
-@router.callback_query(F.data == "action:setdomain")
+@router.callback_query(F.data.startswith("setdomain:"))
 async def action_setdomain(callback: types.CallbackQuery, state: FSMContext):
+    site_id = callback.data.split(":")[1]
+    site = SITES[site_id]
     await state.set_state(BotStates.waiting_domain)
+    await state.update_data(site_id=site_id)
     await callback.message.edit_text(
-        "🌐 <b>Отправьте новый домен:</b>\n\n"
-        "Например: <code>mysite.com</code>\n\n"
+        f"{site['emoji']} <b>{site['name']} — Новый домен</b>\n\n"
+        "Отправьте домен, например: <code>mysite.com</code>\n\n"
         "⚠️ DNS домена должен быть направлен на IP сервера!",
         reply_markup=get_cancel_menu()
     )
     await callback.answer()
 
-# --- ОБРАБОТКА ВВОДА ---
+# --- ДЕЙСТВИЯ: УСТАНОВИТЬ ССЫЛКУ ---
 
-@router.message(BotStates.waiting_link)
-async def process_link(message: types.Message, state: FSMContext):
-    link = message.text.strip()
-    set_gift_link(link)
-    await state.clear()
-    await message.answer(
-        f"✅ Ссылка подарка установлена:\n<code>{link}</code>",
-        reply_markup=get_main_menu()
+@router.callback_query(F.data.startswith("setlink:"))
+async def action_setlink(callback: types.CallbackQuery, state: FSMContext):
+    site_id = callback.data.split(":")[1]
+    site = SITES[site_id]
+    await state.set_state(BotStates.waiting_link)
+    await state.update_data(site_id=site_id)
+    await callback.message.edit_text(
+        f"{site['emoji']} <b>{site['name']} — Новая ссылка</b>\n\n"
+        "Отправьте ссылку:\n<code>https://example.com/path</code>",
+        reply_markup=get_cancel_menu()
     )
-    logger.info(f"Gift link updated to: {link}")
+    await callback.answer()
 
-@router.message(BotStates.waiting_domain)
-async def process_domain(message: types.Message, state: FSMContext):
-    new_domain = message.text.strip().lower()
-    new_domain = new_domain.replace("https://", "").replace("http://", "").replace("www.", "").rstrip("/")
-    
-    old_domain = get_domain()
-    
-    msg = await message.answer(
-        f"⏳ Меняю домен...\n"
-        f"<code>{old_domain}</code> → <code>{new_domain}</code>"
-    )
-    
-    result, ssl_ok = await change_domain(new_domain)
-    await state.clear()
-    
-    if ssl_ok:
-        await msg.edit_text(
-            f"🌐 Смена домена: <code>{old_domain}</code> → <code>{new_domain}</code>\n\n{result}",
-            reply_markup=get_main_menu()
-        )
-    else:
-        await msg.edit_text(
-            f"🌐 Смена домена: <code>{old_domain}</code> → <code>{new_domain}</code>\n\n{result}",
-            reply_markup=get_retry_ssl_menu()
-        )
-    logger.info(f"Domain changed: {old_domain} -> {new_domain}, SSL: {ssl_ok}")
+# --- ДЕЙСТВИЯ: ПОВТОРИТЬ SSL ---
 
-@router.callback_query(F.data == "action:retry_ssl")
+@router.callback_query(F.data.startswith("retryssl:"))
 async def action_retry_ssl(callback: types.CallbackQuery):
-    domain = get_domain()
-    
+    site_id = callback.data.split(":")[1]
+    site = SITES[site_id]
+    domain = get_site_domain(site_id)
+    if not domain:
+        await callback.answer("⚠️ Домен не установлен!", show_alert=True)
+        return
+
     await callback.message.edit_text(
         f"🔄 <b>Получаю SSL для</b> <code>{domain}</code>...\n\n"
         f"⏳ Подождите, это может занять до 2 минут..."
     )
     await callback.answer()
-    
+
     ssl_ok = await issue_ssl(domain)
-    
+
     if ssl_ok:
         subprocess.run(["systemctl", "reload", "nginx"], capture_output=True, text=True)
         await callback.message.edit_text(
-            f"🔒 <b>SSL для</b> <code>{domain}</code>\n\n"
+            f"{site['emoji']} <b>SSL для {site['name']}</b>\n\n"
             f"✅ SSL сертификат успешно установлен!\n"
             f"✅ Nginx перезагружен\n\n"
-            f"🌐 Сайт доступен: https://{domain}/",
-            reply_markup=get_main_menu()
+            f"🌐 Сайт: https://{domain}/",
+            reply_markup=get_site_menu(site_id)
         )
-        logger.info(f"SSL issued successfully for {domain}")
+        logger.info(f"SSL issued for {site_id}: {domain}")
     else:
         await callback.message.edit_text(
-            f"🔒 <b>SSL для</b> <code>{domain}</code>\n\n"
+            f"{site['emoji']} <b>SSL для {site['name']}</b>\n\n"
             f"❌ SSL не удалось установить\n\n"
             f"Возможные причины:\n"
-            f"• DNS ещё не обновились (подождите 5-30 мин)\n"
-            f"• A-запись домена не указывает на IP сервера\n\n"
-            f"Попробуйте ещё раз позже 👇",
-            reply_markup=get_retry_ssl_menu()
+            f"• DNS ещё не обновились (5-30 мин)\n"
+            f"• A-запись не указывает на IP сервера\n\n"
+            f"Попробуйте позже 👇",
+            reply_markup=get_retry_ssl_menu(site_id)
         )
-        logger.warning(f"SSL failed for {domain}")
+        logger.warning(f"SSL failed for {site_id}: {domain}")
+
+# --- ОБРАБОТКА ВВОДА ---
+
+@router.message(BotStates.waiting_link)
+async def process_link(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    site_id = data.get("site_id", "wb")
+    link = message.text.strip()
+    set_gift_link(link)
+    await state.clear()
+    await message.answer(
+        f"✅ Ссылка подарка установлена:\n<code>{link}</code>",
+        reply_markup=get_site_menu(site_id)
+    )
+    logger.info(f"Gift link updated: {link}")
+
+@router.message(BotStates.waiting_domain)
+async def process_domain(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    site_id = data.get("site_id", "wb")
+    site = SITES[site_id]
+
+    new_domain = message.text.strip().lower()
+    new_domain = new_domain.replace("https://", "").replace("http://", "").replace("www.", "").rstrip("/")
+    old_domain = get_site_domain(site_id)
+
+    msg = await message.answer(
+        f"⏳ {site['emoji']} Меняю домен {site['name']}...\n"
+        f"<code>{old_domain or '—'}</code> → <code>{new_domain}</code>"
+    )
+
+    result, ssl_ok = await change_site_domain(site_id, new_domain)
+    await state.clear()
+
+    reply_markup = get_site_menu(site_id) if ssl_ok else get_retry_ssl_menu(site_id)
+    await msg.edit_text(
+        f"{site['emoji']} <b>{site['name']}</b>\n"
+        f"<code>{old_domain or '—'}</code> → <code>{new_domain}</code>\n\n{result}",
+        reply_markup=reply_markup
+    )
+    logger.info(f"Domain changed {site_id}: {old_domain} -> {new_domain}, SSL: {ssl_ok}")
 
 @router.callback_query(F.data == "_")
 async def empty_callback(callback: types.CallbackQuery):

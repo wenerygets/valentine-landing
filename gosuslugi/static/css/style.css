@@ -1,0 +1,271 @@
+﻿/* ============================================
+   style.css — Стили формы заявки ЖКХ
+   ============================================ */
+
+/* Form Overlay */
+.form-overlay {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 50%, #f0f9ff 100%);
+    padding: 20px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(30, 64, 175, 0.12);
+    border: 2px solid #dbeafe;
+    padding: 32px 24px;
+    position: relative;
+    animation: formFadeIn 0.5s ease-out;
+}
+
+@keyframes formFadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Back Button */
+.form-back {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 12px;
+    font-family: inherit;
+    transition: color 0.2s;
+}
+
+.form-back:hover {
+    color: #1e40af;
+}
+
+/* Form Header */
+.form-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.form-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.form-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: #1e293b;
+    margin: 0 0 8px;
+    letter-spacing: -0.3px;
+}
+
+.form-subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Form Body */
+.form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.form-input {
+    width: 100%;
+    height: 52px;
+    border: 2px solid #dbeafe;
+    border-radius: 14px;
+    padding: 0 16px;
+    font-size: 16px;
+    font-family: inherit;
+    color: #1e293b;
+    background: #f8fafc;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.form-input.input-error {
+    border-color: #e53e3e;
+    background: #fff5f5;
+}
+
+.form-input.input-error:focus {
+    box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.12);
+}
+
+.form-hint {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* Submit Button */
+.form-submit-btn {
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    border: none;
+    border-radius: 16px;
+    color: white;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+}
+
+.form-submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: btnShine 2s ease-in-out infinite;
+}
+
+@keyframes btnShine {
+    0% { left: -100%; }
+    50%, 100% { left: 100%; }
+}
+
+.form-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(5, 150, 105, 0.4);
+}
+
+.form-submit-btn:active {
+    transform: translateY(0);
+}
+
+.form-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Security Note */
+.form-security {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding-top: 4px;
+}
+
+.form-security span {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+/* Success Screen */
+.form-success {
+    text-align: center;
+    padding: 24px 0;
+    animation: formFadeIn 0.5s ease-out;
+}
+
+.success-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+}
+
+.success-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #059669;
+    margin: 0 0 12px;
+}
+
+.success-text {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.6;
+    margin: 0 0 24px;
+}
+
+.success-details {
+    background: #f0fdf4;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #bbf7d0;
+}
+
+.success-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.success-detail-row span {
+    color: #64748b;
+}
+
+.success-detail-row strong {
+    color: #1e293b;
+    font-weight: 800;
+}
+
+.success-detail-row + .success-detail-row {
+    border-top: 1px solid #d1fae5;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .form-container {
+        padding: 24px 18px;
+        border-radius: 20px;
+    }
+
+    .form-title {
+        font-size: 20px;
+    }
+
+    .form-input {
+        height: 48px;
+        font-size: 15px;
+    }
+
+    .form-submit-btn {
+        height: 52px;
+        font-size: 16px;
+    }
+}
