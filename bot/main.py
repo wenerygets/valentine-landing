@@ -15,6 +15,9 @@ from contextlib import asynccontextmanager
 from aiogram import Bot, Dispatcher, Router, F, types
 from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.session.aiohttp import AiohttpSession
 
 from fastapi import FastAPI, Request
@@ -49,8 +52,15 @@ logger = logging.getLogger(__name__)
 # AIOGRAM БОТ (инициализация отложена до async контекста)
 # ============================================
 bot: Bot = None
-dp = Dispatcher()
+dp = Dispatcher(storage=MemoryStorage())
 router = Router()
+
+# ============================================
+# FSM СОСТОЯНИЯ
+# ============================================
+class BotStates(StatesGroup):
+    waiting_link = State()
+    waiting_domain = State()
 
 def init_bot():
     """Инициализация бота (вызывается в async контексте)"""
@@ -222,75 +232,145 @@ async def change_domain(new_domain: str) -> str:
     return "\n".join(steps)
 
 # ============================================
+# КЛАВИАТУРЫ МЕНЮ
+# ============================================
+
+def get_main_menu():
+    """Главное меню"""
+    return types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="🎁 Ссылка подарка", callback_data="menu:link")],
+        [types.InlineKeyboardButton(text="🌐 Домен сайта", callback_data="menu:domain")],
+    ])
+
+def get_link_menu():
+    """Меню ссылки подарка"""
+    return types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="✏️ Изменить ссылку", callback_data="action:setlink")],
+        [types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:main")],
+    ])
+
+def get_domain_menu():
+    """Меню домена"""
+    return types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="✏️ Изменить домен", callback_data="action:setdomain")],
+        [types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu:main")],
+    ])
+
+def get_cancel_menu():
+    """Кнопка отмены"""
+    return types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="❌ Отмена", callback_data="menu:main")],
+    ])
+
+# ============================================
 # TELEGRAM ОБРАБОТЧИКИ
 # ============================================
 
 @router.message(Command("start"))
-async def cmd_start(message: types.Message):
+async def cmd_start(message: types.Message, state: FSMContext):
+    await state.clear()
+    link = get_gift_link()
+    domain = get_domain()
     await message.answer(
-        "🤖 <b>Valentine Sale Bot</b>\n\n"
-        "Команды:\n"
-        "/setlink <ссылка> — установить ссылку подарка\n"
-        "/getlink — посмотреть текущую ссылку\n"
-        "/setdomain <домен> — сменить домен сайта\n"
-        "/getdomain — посмотреть текущий домен"
+        f"🤖 <b>Valentine Sale Bot</b>\n\n"
+        f"🎁 Ссылка: <code>{link or 'не установлена'}</code>\n"
+        f"🌐 Домен: <code>{domain}</code>",
+        reply_markup=get_main_menu()
     )
 
-@router.message(Command("setlink"))
-async def cmd_setlink(message: types.Message):
-    """Установить ссылку подарка"""
-    args = message.text.split(maxsplit=1)
-    if len(args) < 2 or not args[1].strip():
-        await message.answer("❌ Укажите ссылку: /setlink https://example.com")
-        return
-    
-    link = args[1].strip()
+# --- НАВИГАЦИЯ МЕНЮ ---
+
+@router.callback_query(F.data == "menu:main")
+async def menu_main(callback: types.CallbackQuery, state: FSMContext):
+    await state.clear()
+    link = get_gift_link()
+    domain = get_domain()
+    await callback.message.edit_text(
+        f"🤖 <b>Valentine Sale Bot</b>\n\n"
+        f"🎁 Ссылка: <code>{link or 'не установлена'}</code>\n"
+        f"🌐 Домен: <code>{domain}</code>",
+        reply_markup=get_main_menu()
+    )
+    await callback.answer()
+
+@router.callback_query(F.data == "menu:link")
+async def menu_link(callback: types.CallbackQuery):
+    link = get_gift_link()
+    text = f"🎁 <b>Ссылка подарка</b>\n\n"
+    if link:
+        text += f"Текущая: <code>{link}</code>"
+    else:
+        text += "⚠️ Не установлена"
+    await callback.message.edit_text(text, reply_markup=get_link_menu())
+    await callback.answer()
+
+@router.callback_query(F.data == "menu:domain")
+async def menu_domain(callback: types.CallbackQuery):
+    domain = get_domain()
+    await callback.message.edit_text(
+        f"🌐 <b>Домен сайта</b>\n\n"
+        f"Текущий: <code>{domain}</code>\n"
+        f"Сайт: https://{domain}/",
+        reply_markup=get_domain_menu()
+    )
+    await callback.answer()
+
+# --- ДЕЙСТВИЯ ---
+
+@router.callback_query(F.data == "action:setlink")
+async def action_setlink(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(BotStates.waiting_link)
+    await callback.message.edit_text(
+        "🎁 <b>Отправьте новую ссылку подарка:</b>\n\n"
+        "Например: <code>https://example.com/path</code>",
+        reply_markup=get_cancel_menu()
+    )
+    await callback.answer()
+
+@router.callback_query(F.data == "action:setdomain")
+async def action_setdomain(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(BotStates.waiting_domain)
+    await callback.message.edit_text(
+        "🌐 <b>Отправьте новый домен:</b>\n\n"
+        "Например: <code>mysite.com</code>\n\n"
+        "⚠️ DNS домена должен быть направлен на IP сервера!",
+        reply_markup=get_cancel_menu()
+    )
+    await callback.answer()
+
+# --- ОБРАБОТКА ВВОДА ---
+
+@router.message(BotStates.waiting_link)
+async def process_link(message: types.Message, state: FSMContext):
+    link = message.text.strip()
     set_gift_link(link)
-    await message.answer(f"✅ Ссылка подарка установлена:\n<code>{link}</code>")
+    await state.clear()
+    await message.answer(
+        f"✅ Ссылка подарка установлена:\n<code>{link}</code>",
+        reply_markup=get_main_menu()
+    )
     logger.info(f"Gift link updated to: {link}")
 
-@router.message(Command("setdomain"))
-async def cmd_setdomain(message: types.Message):
-    """Сменить домен сайта"""
-    args = message.text.split(maxsplit=1)
-    if len(args) < 2 or not args[1].strip():
-        await message.answer("❌ Укажите домен: /setdomain example.com")
-        return
-    
-    new_domain = args[1].strip().lower()
-    # Убираем http/https/www если вставили полную ссылку
+@router.message(BotStates.waiting_domain)
+async def process_domain(message: types.Message, state: FSMContext):
+    new_domain = message.text.strip().lower()
     new_domain = new_domain.replace("https://", "").replace("http://", "").replace("www.", "").rstrip("/")
     
     old_domain = get_domain()
     
     msg = await message.answer(
         f"⏳ Меняю домен...\n"
-        f"<code>{old_domain}</code> → <code>{new_domain}</code>\n\n"
-        f"⚠️ Убедитесь, что DNS домена <code>{new_domain}</code> направлен на IP сервера!"
+        f"<code>{old_domain}</code> → <code>{new_domain}</code>"
     )
     
-    # Выполняем смену домена
     result = await change_domain(new_domain)
+    await state.clear()
     
     await msg.edit_text(
-        f"🌐 Смена домена: <code>{old_domain}</code> → <code>{new_domain}</code>\n\n{result}"
+        f"🌐 Смена домена: <code>{old_domain}</code> → <code>{new_domain}</code>\n\n{result}",
+        reply_markup=get_main_menu()
     )
     logger.info(f"Domain changed: {old_domain} -> {new_domain}")
-
-@router.message(Command("getdomain"))
-async def cmd_getdomain(message: types.Message):
-    """Посмотреть текущий домен"""
-    domain = get_domain()
-    await message.answer(f"🌐 Текущий домен: <code>{domain}</code>\n\nСайт: https://{domain}/")
-
-@router.message(Command("getlink"))
-async def cmd_getlink(message: types.Message):
-    """Посмотреть текущую ссылку подарка"""
-    link = get_gift_link()
-    if link:
-        await message.answer(f"🎁 Текущая ссылка подарка:\n<code>{link}</code>")
-    else:
-        await message.answer("⚠️ Ссылка подарка не установлена.\nУстановите: /setlink https://example.com")
 
 @router.callback_query(F.data == "_")
 async def empty_callback(callback: types.CallbackQuery):
